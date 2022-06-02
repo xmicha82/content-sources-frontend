@@ -1,20 +1,21 @@
 name: build-test
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
     paths-ignore:
       - '**.md'
   pull_request:
+    branches: [ main ]
     paths-ignore:
       - '**.md'
 jobs:
   build:
+  
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        node-version: 16.14.0
+        node-version: [16.14.0]
 
     steps:
       - name: Checkout repository
