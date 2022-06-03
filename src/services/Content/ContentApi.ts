@@ -31,7 +31,19 @@ export interface ContentListResponse {
 }
 
 export const getContentList: () => Promise<ContentListResponse> = async () => {
-    const { data } = await axios.get('/api/content_sources/v1/repositories/');
-    return data;
+    try {
+        const { data } = await axios.get('/api/content_sources/v1/repositories/');
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
+export const deleteContentListItem: (uuid: string) => Promise<void> = async (uuid: string) => {
+    try {
+        const { data } = await axios.delete(`/api/content_sources/v1/repositories/${uuid}`);
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
