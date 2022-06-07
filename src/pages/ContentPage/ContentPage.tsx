@@ -1,8 +1,7 @@
 import { Main, PageHeader as _PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
 import { PageHeaderProps as _PageHeaderProps } from '@redhat-cloud-services/frontend-components/PageHeader/PageHeader';
-import {  FunctionComponent, useEffect } from 'react';
-import { ReactElement } from 'react';
-import {  withRouter } from 'react-router-dom';
+import { FunctionComponent, ReactElement, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
 
 import ContentListTable from '../../components/ContentListTable/ContentListTable';
 

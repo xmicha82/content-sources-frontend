@@ -1,13 +1,12 @@
 import { ErrorBoundary as _ErrorBoundaryPage } from '@redhat-cloud-services/frontend-components';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
-const ErrorBoundaryPage = _ErrorBoundaryPage as unknown as
-React.FunctionComponent<{
-  children: React.ReactNode;
-  headerTitle: string;
-  errorTitle?: string;
-  errorDescription?: string;
-}>;
+const ErrorBoundaryPage = _ErrorBoundaryPage as unknown as React.FunctionComponent<{
+    children: React.ReactNode;
+    headerTitle: string;
+    errorTitle?: string;
+    errorDescription?: string;
+  }>;
 
 interface ErrorPageProps extends RouteComponentProps {children: React.ReactNode}
 
