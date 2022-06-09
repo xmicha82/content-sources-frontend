@@ -30,9 +30,9 @@ export interface ContentListResponse {
     meta: Meta;
 }
 
-export const getContentList: () => Promise<ContentListResponse> = async () => {
+export const getContentList: (page: number, limit: number) => Promise<ContentListResponse> = async (page, limit) => {
     try {
-        const { data } = await axios.get('/api/content_sources/v1/repositories/');
+        const { data } = await axios.get(`/api/content_sources/v1/repositories/?offset=${(page - 1) * limit}&limit=${limit}`);
         return data;
     } catch (error) {
         throw error;
