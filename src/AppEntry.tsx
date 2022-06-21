@@ -9,11 +9,11 @@ import App from './App';
 import { createStore, resetStore } from './store';
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            refetchOnWindowFocus: false // TODO: Have a conversation about this
-        }
-    }
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // TODO: Have a conversation about this
+    },
+  },
 });
 
 interface AppEntryProps {
@@ -21,25 +21,24 @@ interface AppEntryProps {
 }
 
 const AppEntry: React.FunctionComponent<AppEntryProps> = (props) => {
-    const store = React.useMemo(() => {
-        resetStore();
-        if (props.logger) {
-            return createStore(props.logger).store;
-        } else {
-            return createStore().store;
-        }
-    }, [ props.logger ]);
+  const store = React.useMemo(() => {
+    resetStore();
+    if (props.logger) {
+      return createStore(props.logger).store;
+    } else {
+      return createStore().store;
+    }
+  }, [props.logger]);
 
-    return (
-
-        <Provider store={ store }>
-            <QueryClientProvider client={ queryClient }>
-                <Router basename={ getBaseName(window.location.pathname) }>
-                    <App />
-                </Router>
-            </QueryClientProvider>
-        </Provider>
-    );
+  return (
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <Router basename={getBaseName(window.location.pathname)}>
+          <App />
+        </Router>
+      </QueryClientProvider>
+    </Provider>
+  );
 };
 
 export default AppEntry;

@@ -3,10 +3,10 @@ import React, { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 
 const OopsPage = () => {
-    useEffect(() => {
-        insights?.chrome?.appAction?.('oops-page');
-    }, []);
-    return (<Unavailable />);
+  useEffect(() => {
+    insights?.chrome?.appAction?.('oops-page');
+  }, []);
+  return <Unavailable />;
 };
 
 export default withRouter(OopsPage);

@@ -14,13 +14,8 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "sourceMap": true,
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "./node_modules/*",
-    "**/*.js"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["./node_modules/*", "**/*.js"]
 }

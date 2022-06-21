@@ -16,10 +16,10 @@ module.exports = {
               .split(/(?=[A-Z])/)
               .join('-')
               .toLowerCase()}`,
-          preventFullImport: true
-        }
+          preventFullImport: true,
+        },
       },
-      'react-icons'
-    ]
-  ]
+      'react-icons',
+    ],
+  ],
 };
