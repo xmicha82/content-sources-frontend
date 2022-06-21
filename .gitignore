@@ -1,7 +1,11 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # vscode config
-.vscode/
+.vscode/*
+
+# We want the extensions recommendations for this workspace
+!.vscode/extensions.json 
+!.vscode/settings.json 
 
 # ide config
 .idea/

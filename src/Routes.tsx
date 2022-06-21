@@ -13,32 +13,43 @@ interface Path {
 }
 
 export const pathRoutes: Path[] = [
-    {
-        path: '/content',
-        component: ContentPage
-    },
-    {
-        path: '/oops',
-        component: OopsPage
-    },
-    {
-        path: '/no-permissions',
-        component: NoPermissionsPage
-    }
+  {
+    path: '/content',
+    component: ContentPage,
+  },
+  {
+    path: '/oops',
+    component: OopsPage,
+  },
+  {
+    path: '/no-permissions',
+    component: NoPermissionsPage,
+  },
 ];
 
 export const Routes = () => (
-    <Suspense
-        fallback={ <Bullseye><Spinner /></Bullseye> }
-    >
-        <Switch>
-            { pathRoutes.map(({ path, component: Component })=>
-                <Route key={ path }path={ path } component={ ()=>
-                    <ErrorPage><Component /></ErrorPage> } />)
-            }
-            <Route>
-                <Redirect exact to='/content' />
-            </Route>
-        </Switch>
-    </Suspense>
+  <Suspense
+    fallback={
+      <Bullseye>
+        <Spinner />
+      </Bullseye>
+    }
+  >
+    <Switch>
+      {pathRoutes.map(({ path, component: Component }) => (
+        <Route
+          key={path}
+          path={path}
+          component={() => (
+            <ErrorPage>
+              <Component />
+            </ErrorPage>
+          )}
+        />
+      ))}
+      <Route>
+        <Redirect exact to='/content' />
+      </Route>
+    </Switch>
+  </Suspense>
 );

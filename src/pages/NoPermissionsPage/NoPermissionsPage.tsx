@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 
 const NoPermissionsPage = () => {
-    useEffect(() => {
-        insights?.chrome?.appAction?.('no-permissions');
-    }, []);
+  useEffect(() => {
+    insights?.chrome?.appAction?.('no-permissions');
+  }, []);
 
-    return (<NotAuthorized serviceName="Sample app" />);
+  return <NotAuthorized serviceName='Sample app' />;
 };
 
 export default withRouter(NoPermissionsPage);
