@@ -8,7 +8,6 @@ import {
   Pagination,
   PaginationVariant,
   Spinner,
-  TextInput,
 } from '@patternfly/react-core';
 import {
   ActionsColumn,
@@ -21,7 +20,7 @@ import {
   Tr,
 } from '@patternfly/react-table';
 import { global_BackgroundColor_100 } from '@patternfly/react-tokens';
-import { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import { useQueryClient } from 'react-query';
 import { ContentItem } from '../../services/Content/ContentApi';
@@ -30,11 +29,20 @@ import {
   useContentListQuery,
   useDeleteContentItemMutate,
 } from '../../services/Content/ContentQueries';
+import ContentListFilters from './ContentListFilters';
+import ContentListChips from './ContentListChips';
+import { ContentListContext } from './ContentListContext';
+import Hide from '../Hide/Hide';
 
 const useStyles = createUseStyles({
   actionContainer: {
     backgroundColor: global_BackgroundColor_100.value,
     justifyContent: 'space-between',
+    padding: '16px 24px',
+  },
+  chipsContainer: {
+    backgroundColor: global_BackgroundColor_100.value,
+    justifyContent: 'flex-start',
     padding: '16px 24px',
   },
   invisible: {
@@ -51,6 +59,10 @@ const ContentListTable = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(storedPerPage);
 
+  const { filterData, searchQuery, selectedVersions, selectedArches } = useContext(ContentListContext);
+
+  const showListChips = selectedVersions.length || selectedArches.length || searchQuery != ''
+
   const hasActionPermissions = true; // TODO: Incorporate permissions here later.
 
   const {
@@ -59,7 +71,7 @@ const ContentListTable = () => {
     isError,
     isFetching,
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
-  } = useContentListQuery(page, perPage);
+  } = useContentListQuery(page, perPage, filterData);
 
   const { mutate, isLoading: isDeleting } = useDeleteContentItemMutate(queryClient, page, perPage);
 
@@ -111,12 +123,7 @@ const ContentListTable = () => {
     <Grid>
       <Flex className={classes.actionContainer}>
         <FlexItem>
-          <Flex>
-            <FlexItem>
-              <TextInput id='search' placeholder='Search' iconVariant='search' />
-            </FlexItem>
-            <FlexItem />
-          </Flex>
+          <ContentListFilters />
         </FlexItem>
         <FlexItem>
           <Pagination
@@ -131,6 +138,11 @@ const ContentListTable = () => {
           />
         </FlexItem>
       </Flex>
+      <Hide hide={!showListChips}>
+        <Flex className={classes.chipsContainer}>
+          <ContentListChips />
+        </Flex>
+      </Hide>
       <TableComposable aria-label='content sources table' variant='compact' borders={false}>
         <Thead>
           <Tr>
