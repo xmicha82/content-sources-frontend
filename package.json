@@ -14,7 +14,7 @@
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "patch:hosts": "fec patch-etc-hosts",
     "start": "fec dev",
-    "test": "jest --verbose",
+    "test": "TZ=UTC jest --verbose --no-cache",
     "verify": "npm-run-all build lint test"
   },
   "dependencies": {
