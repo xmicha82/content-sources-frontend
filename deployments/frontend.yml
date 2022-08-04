@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: content-sources-frontend
+objects:
+  - apiVersion: cloud.redhat.com/v1alpha1
+    kind: Frontend
+    metadata:
+      name: content-sources-frontend
+    spec:
+      envName: ${ENV_NAME}
+      title: ContentSources
+      deploymentRepo: https://github.com/content-services/content-sources-frontend
+      API:
+        versions:
+          - v1
+      frontend:
+        paths:
+          - /apps/content  # TODO ensure this matches routes?
+      image: ${IMAGE}:${IMAGE_TAG}
+      module:
+        manifestLocation: "/apps/inventory/fed-mods.json"
+        modules:
+          - id: "content-sources"
+            module: "./App"
+            routes:
+              - pathname: /insights/content  # TODO ensure this matches routes/webpack config?
+
+parameters:
+  - name: ENV_NAME
+    required: true
+  - name: IMAGE_TAG
+    required: true
+  - name: IMAGE
+    value: quay.io/cloudservices/provisioning-frontend
