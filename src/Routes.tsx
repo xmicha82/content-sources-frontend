@@ -4,8 +4,6 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { ErrorPage } from './components/Error/ErrorPage';
 import ContentPage from './pages/ContentPage/ContentPage';
-import NoPermissionsPage from './pages/NoPermissionsPage/NoPermissionsPage';
-import OopsPage from './pages/OopsPage/OopsPage';
 
 interface Path {
   path: string;
@@ -16,14 +14,6 @@ export const pathRoutes: Path[] = [
   {
     path: '/content',
     component: ContentPage,
-  },
-  {
-    path: '/oops',
-    component: OopsPage,
-  },
-  {
-    path: '/no-permissions',
-    component: NoPermissionsPage,
   },
 ];
 

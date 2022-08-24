@@ -1,5 +1,5 @@
 import { getBaseName } from '@redhat-cloud-services/insights-common-typescript';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -29,6 +29,10 @@ const AppEntry: React.FunctionComponent<AppEntryProps> = ({ logger }) => {
       return createStore().store;
     }
   }, [logger]);
+
+  useEffect(() => {
+    insights?.chrome?.appAction?.('view-list-page');
+  }, []);
 
   return (
     <Provider store={store}>
