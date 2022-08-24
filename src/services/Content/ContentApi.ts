@@ -60,13 +60,16 @@ export type ValidateItem = {
   skipped: boolean;
   valid: boolean;
   error: string;
+};
+
+export interface ValidationUrl extends ValidateItem {
   http_code: number;
   metadata_present: boolean;
-};
+}
 
 export type ValidationResponse = {
   name?: ValidateItem;
-  url?: ValidateItem;
+  url?: ValidationUrl;
   distribution_versions?: ValidateItem;
   distribution_arch?: ValidateItem;
   gpgKey?: ValidateItem;

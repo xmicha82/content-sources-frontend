@@ -131,7 +131,7 @@ const defaultValues = {
   expanded: true,
 };
 
-export const AddContent = ({ isLoading }: Props) => {
+const AddContent = ({ isLoading }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const classes = useStyles();
   const queryClient = useQueryClient();
@@ -155,7 +155,7 @@ export const AddContent = ({ isLoading }: Props) => {
     return { distributionArches, distributionVersions };
   }, [distArches, distVersions]);
 
-  const handleModalToggle = () => setIsModalOpen((prev) => !prev);
+  const handleModalToggle = () => setIsModalOpen(!isModalOpen);
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -254,7 +254,7 @@ export const AddContent = ({ isLoading }: Props) => {
           formik.setErrors(mappedErrorData);
         },
       );
-  }, [debouncedValues]);
+  }, [debouncedValues, formik.touched, isModalOpen]);
 
   const onToggle = (index: number) => {
     if (formik.values[index]?.expanded) {
@@ -595,3 +595,5 @@ export const AddContent = ({ isLoading }: Props) => {
     </>
   );
 };
+
+export default AddContent;

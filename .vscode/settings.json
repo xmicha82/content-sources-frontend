@@ -14,5 +14,6 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
-  }
+  },
+  "jest.jestCommandLine": "npm test --"
 }

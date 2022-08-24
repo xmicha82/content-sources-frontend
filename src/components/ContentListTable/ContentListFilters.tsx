@@ -17,8 +17,9 @@ import { FilterData, RepositoryParamsResponse } from '../../services/Content/Con
 import { useQueryClient } from 'react-query';
 import { REPOSITORY_PARAMS_KEY } from '../../services/Content/ContentQueries';
 import useDebounce from '../../services/useDebounce';
-import { AddContent } from '../AddContent/AddContent';
+import AddContent from '../AddContent/AddContent';
 import { createUseStyles } from 'react-jss';
+import { isEmpty } from 'lodash';
 
 interface Props {
   isLoading?: boolean;
@@ -108,12 +109,19 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
   };
 
   useEffect(() => {
-    const arches = {};
-    const versions = {};
-    distribution_arches.forEach((arch) => (arches[arch.name] = arch.label));
-    distribution_versions.forEach((version) => (versions[version.name] = version.label));
-    setVersionNamesLabels(versions);
-    setArchNamesLabels(arches);
+    if (
+      isEmpty(versionNamesLabels) &&
+      isEmpty(archNamesLabels) &&
+      distribution_arches.length !== 0 &&
+      distribution_versions.length !== 0
+    ) {
+      const arches = {};
+      const versions = {};
+      distribution_arches.forEach((arch) => (arches[arch.name] = arch.label));
+      distribution_versions.forEach((version) => (versions[version.name] = version.label));
+      setVersionNamesLabels(versions);
+      setArchNamesLabels(arches);
+    }
   }, [distribution_arches, distribution_versions]);
 
   const getSelectionByType = (): ReactElement => {

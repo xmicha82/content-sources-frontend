@@ -9,9 +9,9 @@
   "scripts": {
     "build": "fec build",
     "deploy": "npm-run-all build lint test",
-    "lint": "eslint src/**/*.{js,jsx,ts,tsx,json}",
-    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
-    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx} --no-error-on-unmatched-pattern",
+    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}' --no-error-on-unmatched-pattern",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md}' --config ./.prettierrc",
     "patch:hosts": "fec patch-etc-hosts",
     "start": "fec dev",
     "test": "TZ=UTC jest --verbose --no-cache",

@@ -16,20 +16,20 @@ objects:
           - v1
       frontend:
         paths:
-          - /apps/content-sources  # TODO ensure this matches routes?
+          - /apps/content-sources # TODO ensure this matches routes?
       image: ${IMAGE}:${IMAGE_TAG}
       navItems:
-        - appId: "content-sources"
-          title: "Repositories"
-          href: "/insights/content"
-          product: "Content"
+        - appId: 'content-sources'
+          title: 'Repositories'
+          href: '/insights/content'
+          product: 'Content'
       module:
-        manifestLocation: "/apps/content-sources/fed-mods.json"
+        manifestLocation: '/apps/content-sources/fed-mods.json'
         modules:
-          - id: "content-sources"
-            module: "./RootApp"
+          - id: 'content-sources'
+            module: './RootApp'
             routes:
-              - pathname: /insights/content  # TODO ensure this matches routes/webpack config?
+              - pathname: /insights/content # TODO ensure this matches routes/webpack config?
 
 parameters:
   - name: ENV_NAME

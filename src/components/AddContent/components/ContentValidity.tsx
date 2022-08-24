@@ -3,6 +3,7 @@ import { FormikErrors, FormikTouched } from 'formik';
 import { global_success_color_100, global_danger_color_100 } from '@patternfly/react-tokens';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { createUseStyles } from 'react-jss';
+
 const red = global_danger_color_100.value;
 const green = global_success_color_100.value;
 
