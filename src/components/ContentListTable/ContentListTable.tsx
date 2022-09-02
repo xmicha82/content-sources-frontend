@@ -113,7 +113,7 @@ const ContentListTable = () => {
     setPage(newPage);
   };
 
-  const columnHeaders = ['Name', 'Url', 'Arch', 'Versions'];
+  const columnHeaders = ['Name', '# Pkgs', 'Url', 'Arch', 'Versions'];
 
   const versionDisplay = (versions: Array<string>): string => {
     if (versions.length === 0) {
@@ -215,9 +215,10 @@ const ContentListTable = () => {
             </Thead>
             <Tbody>
               {contentList.map(
-                ({ uuid, name, url, distribution_arch, distribution_versions }: ContentItem) => (
+                ({ uuid, name, package_count, url, distribution_arch, distribution_versions }: ContentItem) => (
                   <Tr key={uuid}>
                     <Td>{name}</Td>
+                    <Td>{package_count}</Td>
                     <Td>{url}</Td>
                     <Td>{distribution_arch ? distribution_arch : 'Any'}</Td>
                     <Td>{versionDisplay(distribution_versions)}</Td>
