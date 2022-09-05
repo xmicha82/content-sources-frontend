@@ -24,6 +24,7 @@ it('mapFormikToAPIValues', () => {
       versions: ['el7'],
       gpgLoading: false,
       expanded: false,
+      package_count: 0,
     },
   ];
 
