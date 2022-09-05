@@ -26,7 +26,7 @@ export const mapFormikToAPIValues = (
     name,
     url,
     distribution_arch: arch,
-    package_coung: 0,
+    package_count: 0,
     distribution_versions: versions,
     gpgKey,
   }));
