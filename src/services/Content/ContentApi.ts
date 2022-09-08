@@ -3,6 +3,7 @@ import axios from 'axios';
 export interface ContentItem {
   uuid: string;
   name: string;
+  package_count: number;
   url: string;
   distribution_versions: Array<string>;
   distribution_arch: string;

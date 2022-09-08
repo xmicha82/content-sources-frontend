@@ -113,7 +113,7 @@ const ContentListTable = () => {
     setPage(newPage);
   };
 
-  const columnHeaders = ['Name', 'Url', 'Arch', 'Versions'];
+  const columnHeaders = ['Name', 'Url', 'Arch', 'Packages', 'Versions'];
 
   const versionDisplay = (versions: Array<string>): string => {
     if (versions.length === 0) {
@@ -215,11 +215,12 @@ const ContentListTable = () => {
             </Thead>
             <Tbody>
               {contentList.map(
-                ({ uuid, name, url, distribution_arch, distribution_versions }: ContentItem) => (
+                ({ uuid, name, url, distribution_arch, package_count, distribution_versions }: ContentItem) => (
                   <Tr key={uuid}>
                     <Td>{name}</Td>
                     <Td>{url}</Td>
                     <Td>{distribution_arch ? distribution_arch : 'Any'}</Td>
+                    <Td>{package_count}</Td>
                     <Td>{versionDisplay(distribution_versions)}</Td>
                     <Td isActionCell>
                       {hasActionPermissions ? <ActionsColumn items={rowActions(uuid)} /> : ''}

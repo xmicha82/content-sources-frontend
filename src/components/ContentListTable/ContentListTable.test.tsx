@@ -73,6 +73,7 @@ it('Render with a single row', () => {
           org_id: '13446804',
           url: 'https://google.ca/wwyylse12/x86_64/el7',
           uuid: '2375c35b-a67a-4ac2-a989-21139433c172',
+          package_count: 0,
         },
       ],
       meta: { count: 1, limit: 20, offset: 0 },
