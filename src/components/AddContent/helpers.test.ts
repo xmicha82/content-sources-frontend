@@ -34,7 +34,6 @@ it('mapFormikToAPIValues', () => {
       distribution_arch: 'x86_64',
       distribution_versions: ['el7'],
       gpgKey: '',
-      package_count: 0,
     },
   ];
 
