@@ -36,6 +36,7 @@ import Hide from '../Hide/Hide';
 import EmptyTableState from './components/EmptyTableState';
 import { useQueryClient } from 'react-query';
 import EditContentModal from '../EditContentModal/EditContentModal';
+import StatusIcon from './components/StatusIcon';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -120,7 +121,7 @@ const ContentListTable = () => {
     setPage(newPage);
   };
 
-  const columnHeaders = ['Name', 'Url', 'Architecture', 'Version', 'Packages'];
+  const columnHeaders = ['Name', 'Url', 'Architecture', 'Versions', 'Packages', 'Status'];
 
   const archesDisplay = (arch: string) => distArches.find(({ label }) => arch === label)?.name;
 
@@ -238,7 +239,7 @@ const ContentListTable = () => {
             </Thead>
             <Tbody>
               {contentList.map((rowData: ContentItem) => {
-                const { uuid, name, url, distribution_arch, package_count, distribution_versions } =
+                const { uuid, name, url, distribution_arch, package_count, distribution_versions, status, last_introspection_error } =
                   rowData;
                 return (
                   <Tr key={uuid}>
@@ -246,6 +247,9 @@ const ContentListTable = () => {
                     <Td>{url}</Td>
                     <Td>{archesDisplay(distribution_arch)}</Td>
                     <Td>{versionDisplay(distribution_versions)}</Td>
+                    <Td>
+                      <StatusIcon status={status} error={last_introspection_error}/>
+                    </Td>
                     <Td>{package_count}</Td>
                     <Td isActionCell>
                       {hasActionPermissions ? <ActionsColumn items={rowActions(rowData)} /> : ''}
