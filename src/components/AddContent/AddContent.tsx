@@ -330,14 +330,8 @@ const AddContent = ({ isLoading }: Props) => {
           ouiaId='add_custom_repository'
           help={
             <Popover
-              headerContent={<div>Help Popover</div>}
-              bodyContent={
-                <div>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id feugiat augue,
-                  nec fringilla turpis.
-                </div>
-              }
-              footerContent='Popover Footer'
+              headerContent={<div>Add a custom repository</div>}
+              bodyContent={<div>Use this form to enter the values for a new repository.</div>}
             >
               <Button variant='plain' aria-label='Help'>
                 <OutlinedQuestionCircleIcon />
@@ -501,8 +495,9 @@ const AddContent = ({ isLoading }: Props) => {
                         </FormGroup>
                         <FormGroup
                           label='Restrict architecture'
+                          aria-label='restrict_to_architecture'
                           labelIcon={
-                            <Tooltip content='Something super important and stuff'>
+                            <Tooltip content='Optional: Select value to restrict package architecture'>
                               <OutlinedQuestionCircleIcon
                                 className='pf-u-ml-xs'
                                 color={global_Color_200.value}
@@ -526,8 +521,9 @@ const AddContent = ({ isLoading }: Props) => {
                         </FormGroup>
                         <FormGroup
                           label='Restrict OS version'
+                          aria-label='restrict_to_os_version'
                           labelIcon={
-                            <Tooltip content='Something super important and stuff'>
+                            <Tooltip content='Optional: Select value to restrict package OS version'>
                               <OutlinedQuestionCircleIcon
                                 className='pf-u-ml-xs'
                                 color={global_Color_200.value}
@@ -551,7 +547,7 @@ const AddContent = ({ isLoading }: Props) => {
                         <FormGroup
                           label='GPG key'
                           labelIcon={
-                            <Tooltip content='Something super important and stuff'>
+                            <Tooltip content='Optional: Add GPG Key file or URL'>
                               <OutlinedQuestionCircleIcon
                                 className='pf-u-ml-xs'
                                 color={global_Color_200.value}
@@ -566,6 +562,7 @@ const AddContent = ({ isLoading }: Props) => {
                             onBlur={() => updateTouched(index, 'gpgKey')}
                             validated={getFieldValidation(index, 'gpgKey')}
                             id='gpgKey-uploader'
+                            aria-label='gpgkey_file_to_upload'
                             type='text'
                             filenamePlaceholder='Drag a file here or upload one'
                             textAreaPlaceholder='Paste GPG key or URL here'
