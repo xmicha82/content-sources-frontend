@@ -70,7 +70,7 @@ export default function MainRoutes() {
     <>
       <PageHeader>
         <PageHeaderTitle title='Custom Repositories' />
-        <Text className={classes.subtext}>
+        <Text className={classes.subtext} ouiaId='custom_repositories_description'>
           View all custom repositories within your organization.
         </Text>
       </PageHeader>
@@ -83,6 +83,7 @@ export default function MainRoutes() {
             tabIndex={-1} // This prevents the tab from being targetable by accessibility features.
             eventKey={route || 'content'} // the current route will be "content" when there is no route specified (root)
             aria-label={title}
+            ouiaId={title}
             title={
               <Link className={classes.link} accessKey={route} key={route} to={route}>
                 <TabTitleText>{title}</TabTitleText>
