@@ -10,6 +10,8 @@ import PopularRepositoriesTable from './Pages/PopularRepositoriesTable/PopularRe
 import { last } from 'lodash';
 import Header from './components/Header/Header';
 import QuickStart from './components/QuickStart/QuickStart';
+import AdminTaskTable from './Pages/AdminTaskTable/AdminTaskTable';
+import { useAppContext } from './middleware/AppContext';
 
 const useStyles = createUseStyles({
   tabs: {
@@ -35,25 +37,37 @@ const useStyles = createUseStyles({
 
 export const DEFAULT_ROUTE = '';
 export const POPULAR_REPOSITORIES_ROUTE = 'popular-repositories';
-
-const tabbedRoutes = [
-  {
-    title: 'Your repositories',
-    route: DEFAULT_ROUTE,
-    Element: ContentListTable,
-  },
-  {
-    title: 'Popular repositories',
-    route: POPULAR_REPOSITORIES_ROUTE,
-    Element: PopularRepositoriesTable,
-  },
-];
+export const ADMIN_TASKS_ROUTE = 'admin-tasks';
 
 export default function MainRoutes() {
   const classes = useStyles();
   const { pathname, key: locationKey } = useLocation();
-
+  const { features } = useAppContext();
   const currentRoute = useMemo(() => last(pathname.split('/')), [pathname]);
+
+  const tabbedRoutes = useMemo(() => {
+    const tabs = [
+      {
+        title: 'Your repositories',
+        route: DEFAULT_ROUTE,
+        Element: ContentListTable,
+      },
+      {
+        title: 'Popular repositories',
+        route: POPULAR_REPOSITORIES_ROUTE,
+        Element: PopularRepositoriesTable,
+      },
+    ];
+    if (features?.admintasks?.enabled && features.admintasks?.accessible) {
+      tabs.push({
+        title: 'Admin tasks',
+        route: ADMIN_TASKS_ROUTE,
+        Element: AdminTaskTable,
+      });
+    }
+    return tabs;
+  }, [features?.admintasks?.enabled, features?.admintasks?.accessible]);
+
   return (
     <>
       <Header />

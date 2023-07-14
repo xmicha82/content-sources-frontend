@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Chip,
@@ -154,7 +154,7 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
     }
   }, [distribution_arches, distribution_versions]);
 
-  const getSelectionByType = (): ReactElement => {
+  const Filter = useMemo(() => {
     switch (filterType) {
       case 'Name/URL':
         return (
@@ -216,7 +216,16 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
       default:
         return <></>;
     }
-  };
+  }, [
+    filterType,
+    isLoading,
+    searchQuery,
+    versionNamesLabels,
+    selectedVersions,
+    archNamesLabels,
+    selectedArches,
+    selectedStatuses,
+  ]);
 
   return (
     <Flex>
@@ -235,7 +244,7 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
               toggleIcon={<FilterIcon />}
             />
           </FlexItem>
-          <FlexItem>{getSelectionByType()}</FlexItem>
+          <FlexItem>{Filter}</FlexItem>
         </InputGroup>
       </FlexItem>
       <FlexItem>
