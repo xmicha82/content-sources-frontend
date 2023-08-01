@@ -22,11 +22,15 @@ import { isEmpty } from 'lodash';
 import { useAppContext } from '../../../middleware/AppContext';
 import ConditionalTooltip from '../../../components/ConditionalTooltip/ConditionalTooltip';
 import { useNavigate } from 'react-router-dom';
+import DeleteKebab from '../../../components/DeleteKebab/DeleteKebab';
 
 interface Props {
   isLoading?: boolean;
   setFilterData: (filterData: FilterData) => void;
   filterData: FilterData;
+  atLeastOneRepoChecked: boolean;
+  numberOfReposChecked: number;
+  deleteCheckedRepos: () => void;
 }
 
 const useStyles = createUseStyles({
@@ -48,12 +52,24 @@ const useStyles = createUseStyles({
     left: '-5px',
     pointerEvents: 'none',
   },
+  // Needed to fix styling when "Add repositories" button is disabled
+  repositoryActions: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
 });
 
 const statusValues = ['Invalid', 'Pending', 'Unavailable', 'Valid'];
 export type Filters = 'Name/URL' | 'Version' | 'Architecture' | 'Status';
 
-const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => {
+const ContentListFilters = ({
+  isLoading,
+  setFilterData,
+  filterData,
+  atLeastOneRepoChecked,
+  numberOfReposChecked,
+  deleteCheckedRepos,
+}: Props) => {
   const classes = useStyles();
   const { rbac } = useAppContext();
   const queryClient = useQueryClient();
@@ -248,7 +264,7 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
           <FlexItem>{Filter}</FlexItem>
         </InputGroup>
       </FlexItem>
-      <FlexItem>
+      <FlexItem className={classes.repositoryActions}>
         <ConditionalTooltip
           content='You do not have the required permissions to perform this action.'
           show={!rbac?.write}
@@ -263,6 +279,17 @@ const ContentListFilters = ({ isLoading, setFilterData, filterData }: Props) => 
           >
             Add repositories
           </Button>
+        </ConditionalTooltip>
+        <ConditionalTooltip
+          content='You do not have the required permissions to perform this action.'
+          show={!rbac?.write}
+          setDisabled
+        >
+          <DeleteKebab
+            atLeastOneRepoChecked={atLeastOneRepoChecked}
+            numberOfReposChecked={numberOfReposChecked}
+            deleteCheckedRepos={deleteCheckedRepos}
+          />
         </ConditionalTooltip>
       </FlexItem>
       <Hide

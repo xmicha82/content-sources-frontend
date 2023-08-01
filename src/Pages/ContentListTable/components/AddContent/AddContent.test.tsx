@@ -7,6 +7,7 @@ import {
 import AddContent from './AddContent';
 import {
   useAddContentQuery,
+  useBulkDeleteContentItemMutate,
   useFetchGpgKey,
   useValidateContentList,
 } from '../../../../services/Content/ContentQueries';
@@ -15,6 +16,7 @@ jest.mock('../../../../services/Content/ContentQueries', () => ({
   useAddContentQuery: jest.fn(),
   useValidateContentList: jest.fn(),
   useFetchGpgKey: jest.fn(),
+  useBulkDeleteContentItemMutate: jest.fn(),
 }));
 
 (useFetchGpgKey as jest.Mock).mockImplementation(() => ({
@@ -27,12 +29,18 @@ jest.mock('../../../../services/Content/ContentQueries', () => ({
   mutateAsync: async () => null,
 }));
 
+(useBulkDeleteContentItemMutate as jest.Mock).mockImplementation(() => ({
+  isLoading: false,
+  mutateAsync: async () => null,
+}));
+
 jest.mock('../../../../Hooks/useDebounce', () => (value) => value);
 
 jest.mock('../../../../Hooks/useNotification', () => () => ({ notify: () => null }));
 
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
+  useOutletContext: () => () => null, // returns mock clearCheckedRepositories function
 }));
 
 const passingValidationMetaDataSigNotPresent = [
