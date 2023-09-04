@@ -52,7 +52,7 @@ import { isEmpty, isEqual } from 'lodash';
 import useDeepCompareEffect from '../../../../Hooks/useDeepCompareEffect';
 import useDebounce from '../../../../Hooks/useDebounce';
 import { useNavigate } from 'react-router-dom';
-import { useClearCheckedRepositories } from '../../ContentListTable';
+import { useContentListOutletContext } from '../../ContentListTable';
 import useRootPath from '../../../../Hooks/useRootPath';
 import { useAppContext } from '../../../../middleware/AppContext';
 
@@ -138,7 +138,8 @@ const AddContent = () => {
     initialTouched: [defaultTouchedState],
     onSubmit: () => undefined,
   });
-  const clearCheckedRepositories = useClearCheckedRepositories();
+
+  const { clearCheckedRepositories } = useContentListOutletContext();
 
   const updateGpgKey = (index: number, value: string) => {
     setChangeVerified(false);
@@ -683,10 +684,6 @@ const AddContent = () => {
                     <Hide hide={!gpgKey}>
                       <FormGroup fieldId='metadataVerification' label='Use GPG key for' isInline>
                         <Radio
-                          isDisabled={
-                            !validationList?.[index]?.url?.metadata_signature_present ||
-                            !!formik?.errors?.[index]?.gpgKey
-                          }
                           id='package-verification-only'
                           name='package-verification-only'
                           label='Package verification only'
@@ -698,10 +695,6 @@ const AddContent = () => {
                           content="This repository's metadata is not signed, metadata verification is not possible."
                         >
                           <Radio
-                            isDisabled={
-                              !validationList?.[index]?.url?.metadata_signature_present ||
-                              !!formik?.errors?.[index]?.gpgKey
-                            }
                             id='package-and-repository-verification'
                             name='package-and-repository-verification'
                             label='Package and metadata verification'
