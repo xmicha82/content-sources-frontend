@@ -20,7 +20,7 @@ import {
   ThProps,
   Tr,
 } from '@patternfly/react-table';
-import { global_BackgroundColor_100 } from '@patternfly/react-tokens';
+import { global_BackgroundColor_100, global_Color_400 } from '@patternfly/react-tokens';
 import { useCallback, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import {
@@ -48,6 +48,7 @@ import { useAppContext } from '../../middleware/AppContext';
 import ConditionalTooltip from '../../components/ConditionalTooltip/ConditionalTooltip';
 import dayjs from 'dayjs';
 import { Outlet, useNavigate, useOutletContext } from 'react-router-dom';
+import ChangedArrows from './components/SnapshotListModal/components/ChangedArrows';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -73,6 +74,13 @@ const useStyles = createUseStyles({
   },
   checkboxMinWidth: {
     minWidth: '45px!important',
+  },
+  snapshotInfoText: {
+    color: global_Color_400.value,
+    marginRight: '16px',
+  },
+  inline: {
+    display: 'flex',
   },
 });
 
@@ -432,6 +440,7 @@ const ContentListTable = () => {
                       uuid,
                       name,
                       url,
+                      last_snapshot,
                       distribution_arch,
                       distribution_versions,
                       last_introspection_time,
@@ -451,8 +460,31 @@ const ContentListTable = () => {
                         </Hide>
                         <Td>
                           {name}
-                          <br />
                           <UrlWithExternalIcon href={url} />
+                          <Hide hide={!features?.snapshots?.accessible}>
+                            <Flex>
+                              <FlexItem className={classes.snapshotInfoText}>
+                                {last_snapshot
+                                  ? `Last snapshot ${dayjs(last_snapshot?.created_at).fromNow()}`
+                                  : 'No snapshot yet'}
+                              </FlexItem>
+                              <Hide hide={!last_snapshot}>
+                                <FlexItem className={classes.inline}>
+                                  <FlexItem className={classes.snapshotInfoText}>Changes:</FlexItem>
+                                  <ChangedArrows
+                                    addedCount={
+                                      (last_snapshot?.added_counts?.['rpm.advisory'] || 0) +
+                                      (last_snapshot?.added_counts?.['rpm.package'] || 0)
+                                    }
+                                    removedCount={
+                                      (last_snapshot?.removed_counts?.['rpm.advisory'] || 0) +
+                                      (last_snapshot?.removed_counts?.['rpm.package'] || 0)
+                                    }
+                                  />
+                                </FlexItem>
+                              </Hide>
+                            </Flex>
+                          </Hide>
                         </Td>
                         <Td>{archesDisplay(distribution_arch)}</Td>
                         <Td>{versionDisplay(distribution_versions)}</Td>
