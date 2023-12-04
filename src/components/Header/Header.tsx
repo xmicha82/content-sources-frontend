@@ -28,9 +28,9 @@ export default function Header() {
 
   return (
     <PageHeader>
-      <PageHeaderTitle title='Custom repositories' />
+      <PageHeaderTitle title='Repositories' />
       <Text className={classes.subtext} ouiaId='custom_repositories_description'>
-        View all custom repositories within your organization.
+        View all repositories within your organization.
       </Text>
     </PageHeader>
   );
