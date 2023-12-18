@@ -34,7 +34,6 @@ import { SkeletonTable } from '@patternfly/react-component-groups';
 import {
   useBulkDeleteContentItemMutate,
   useContentListQuery,
-  useDeleteContentItemMutate,
   useIntrospectRepositoryMutate,
   useRepositoryParams,
 } from '../../services/Content/ContentQueries';
@@ -162,14 +161,6 @@ const ContentListTable = () => {
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
   } = useContentListQuery(page, perPage, filterData, sortString(), contentOrigin);
 
-  const { mutateAsync: deleteItem, isLoading: isDeleting } = useDeleteContentItemMutate(
-    queryClient,
-    page,
-    perPage,
-    filterData,
-    sortString(),
-  );
-
   const { mutateAsync: introspectRepository, isLoading: isIntrospecting } =
     useIntrospectRepositoryMutate(queryClient, page, perPage, filterData, sortString());
 
@@ -187,7 +178,7 @@ const ContentListTable = () => {
 
   // Other update actions will be added to this later.
   const actionTakingPlace =
-    isDeleting || isFetching || repositoryParamsLoading || isIntrospecting || isDeletingItems;
+    isFetching || repositoryParamsLoading || isIntrospecting || isDeletingItems;
 
   const onSetPage = (_, newPage) => setPage(newPage);
 
@@ -293,14 +284,7 @@ const ContentListTable = () => {
             { isSeparator: true },
             {
               title: 'Delete',
-              onClick: () =>
-                deleteItem(rowData?.uuid).then(() => {
-                  clearCheckedRepositories();
-                  // If this is the last item on a page, go to previous page.
-                  if (page > 1 && count / perPage + 1 >= page && (count - 1) % perPage === 0) {
-                    setPage(page - 1);
-                  }
-                }),
+              onClick: () => navigate(`delete-repository?repoUUIDS=${rowData.uuid}`),
             },
           ],
     [actionTakingPlace, checkedRepositories, isRedHatRepository],
@@ -379,7 +363,12 @@ const ContentListTable = () => {
 
   return (
     <>
-      <Outlet context={{ clearCheckedRepositories }} />
+      <Outlet
+        context={{
+          clearCheckedRepositories,
+          deletionContext: { page, perPage, filterData, contentOrigin, sortString: sortString() },
+        }}
+      />
       <Grid
         data-ouia-safe={!actionTakingPlace}
         data-ouia-component-id='content_list_page'
@@ -615,6 +604,15 @@ const ContentListTable = () => {
 };
 
 export const useContentListOutletContext = () =>
-  useOutletContext<{ clearCheckedRepositories: () => void }>();
+  useOutletContext<{
+    clearCheckedRepositories: () => void;
+    deletionContext: {
+      page: number;
+      perPage: number;
+      filterData: FilterData;
+      contentOrigin: ContentOrigin;
+      sortString: string;
+    };
+  }>();
 
 export default ContentListTable;
