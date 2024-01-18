@@ -36,6 +36,7 @@ import {
   useContentListQuery,
   useIntrospectRepositoryMutate,
   useRepositoryParams,
+  useTriggerSnapshot,
 } from '../../services/Content/ContentQueries';
 import ContentListFilters from './components/ContentListFilters';
 import Hide from '../../components/Hide/Hide';
@@ -167,6 +168,12 @@ const ContentListTable = () => {
   const introspectRepoForUuid = (uuid: string): Promise<void> =>
     introspectRepository({ uuid: uuid, reset_count: true } as IntrospectRepositoryRequestItem);
 
+  const { mutateAsync: triggerSnapshotMutation } = useTriggerSnapshot(queryClient);
+
+  const triggerSnapshot = async (uuid: string): Promise<void> => {
+    triggerSnapshotMutation(uuid);
+  };
+
   const { mutateAsync: deleteItems, isLoading: isDeletingItems } = useBulkDeleteContentItemMutate(
     queryClient,
     checkedRepositories,
@@ -272,6 +279,13 @@ const ContentListTable = () => {
                         : 'No snapshots yet',
                     onClick: () => {
                       navigate(`${rowData.uuid}/snapshots`);
+                    },
+                  },
+                  {
+                    isDisabled: actionTakingPlace || rowData?.status === 'Retrying',
+                    title: 'Trigger Snapshot',
+                    onClick: () => {
+                      triggerSnapshot(rowData.uuid);
                     },
                   },
                 ]

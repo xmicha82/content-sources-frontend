@@ -5,7 +5,7 @@ import {
   defaultSnapshotItem,
   testRepositoryParamsResponse,
 } from '../../testingHelpers';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import ContentListTable from './ContentListTable';
 import { useContentListQuery, useRepositoryParams } from '../../services/Content/ContentQueries';
 import AddContent from './components/AddContent/AddContent';
@@ -20,10 +20,13 @@ jest.mock('../../services/Content/ContentQueries', () => ({
   useBulkDeleteContentItemMutate: () => ({ isLoading: false }),
   useIntrospectRepositoryMutate: () => ({ isLoading: false }),
   useFetchGpgKey: () => ({ fetchGpgKey: () => '' }),
+  useTriggerSnapshot: () => ({ isLoading: false }),
 }));
 
 jest.mock('../../middleware/AppContext', () => ({
   useAppContext: () => ({
+    features: { snapshots: { accessible: true } },
+    rbac: { write: true, read: true },
     contentOrigin: ContentOrigin.EXTERNAL,
     setContentOrigin: () => {},
   }),
@@ -72,11 +75,7 @@ it('Render a loading state', () => {
   expect(queryByLabelText('Loading')).toBeInTheDocument();
 });
 
-it('Render with a single row', () => {
-  jest.mock('../../middleware/AppContext', () => ({
-    useAppContext: (features) => ({ features: features.snapshot.accessible }),
-  }));
-
+it('Render with a single row', async () => {
   (useRepositoryParams as jest.Mock).mockImplementation(() => ({
     isLoading: false,
     data: testRepositoryParamsResponse,
@@ -89,7 +88,7 @@ it('Render with a single row', () => {
     },
   }));
 
-  const { queryByText } = render(
+  const { queryByText, getByRole } = render(
     <ReactQueryTestWrapper>
       <ContentListTable />
     </ReactQueryTestWrapper>,
@@ -120,6 +119,14 @@ it('Render with a single row', () => {
       ),
     ).toBeInTheDocument(),
   );
+
+  const kebabButton = getByRole('button', { name: 'Kebab toggle' });
+  fireEvent.click(kebabButton);
+
+  getByRole('menuitem', { name: 'Edit' });
+  getByRole('menuitem', { name: 'Trigger Snapshot' });
+  getByRole('menuitem', { name: 'Introspect Now' });
+  getByRole('menuitem', { name: 'Delete' });
 });
 
 it('Render with a single redhat repository', () => {

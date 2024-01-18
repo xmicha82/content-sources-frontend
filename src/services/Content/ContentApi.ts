@@ -333,6 +333,16 @@ export const introspectRepository: (
   return data;
 };
 
+export const triggerSnapshot: (repositoryUUID: string) => Promise<void> = async (
+  repositoryUUID,
+) => {
+  const { data } = await axios.post(
+    `/api/content-sources/v1.0/repositories/${repositoryUUID}/snapshot/`,
+    {},
+  );
+  return data;
+};
+
 export const getRepoConfigFile: (
   repo_uuid: string,
   snapshot_uuid: string,
