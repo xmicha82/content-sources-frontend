@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import {
   ReactQueryTestWrapper,
   defaultPopularRepository,
@@ -80,4 +80,29 @@ it('Render a loading state checking search disabled', () => {
   );
 
   expect(queryByPlaceholderText('Filter by name/url')).toHaveAttribute('disabled');
+});
+
+it('finds search box, enters text, and checks text occurrence', () => {
+  (useRepositoryParams as jest.Mock).mockImplementation(() => ({ isLoading: false }));
+  (usePopularRepositoriesQuery as jest.Mock).mockImplementation(() => ({
+    isLoading: false,
+    data: { data: [defaultPopularRepository], meta: { count: 1, limit: 20, offset: 0 } },
+  }));
+
+  const { getByPlaceholderText, queryAllByText, getByText, queryByText } = render(
+    <ReactQueryTestWrapper>
+      <PopularRepositoriesTable />
+    </ReactQueryTestWrapper>,
+  );
+
+  const searchBox = getByPlaceholderText('Filter by name/url');
+  fireEvent.change(searchBox, { target: { value: 'yourSearchText' } });
+
+  const occurrences = queryAllByText('yourSearchText', { exact: false });
+  expect(occurrences.length).toBe(1);
+
+  const clearFiltersButton = getByText('Clear filters');
+  fireEvent.click(clearFiltersButton);
+  const chip = queryByText('yourSearchText');
+  expect(chip).toBeNull();
 });

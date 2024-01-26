@@ -10,6 +10,8 @@ import {
   TextInput,
   InputGroupItem,
   InputGroupText,
+  Chip,
+  ChipGroup,
 } from '@patternfly/react-core';
 import {
   Table /* data-codemods */,
@@ -61,6 +63,15 @@ import {
 } from '@patternfly/react-core/deprecated';
 
 const useStyles = createUseStyles({
+  chipsContainer: {
+    backgroundColor: global_BackgroundColor_100.value,
+    paddingTop: '16px',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  clearFilters: {
+    marginLeft: '16px',
+  },
   mainContainer: {
     backgroundColor: global_BackgroundColor_100.value,
     display: 'flex',
@@ -452,6 +463,25 @@ const PopularRepositoriesTable = () => {
               </FlexItem>
             </InputGroupItem>
           </InputGroup>
+          {searchValue !== '' && (
+            <Flex>
+              <FlexItem fullWidth={{ default: 'fullWidth' }} className={classes.chipsContainer}>
+                <ChipGroup categoryName='Name/URL'>
+                  <Chip key='search_chip' onClick={() => setSearchValue('')}>
+                    {searchValue}
+                  </Chip>
+                </ChipGroup>
+                <Button
+                  className={classes.clearFilters}
+                  onClick={() => setSearchValue('')}
+                  variant='link'
+                  isInline
+                >
+                  Clear filters
+                </Button>
+              </FlexItem>
+            </Flex>
+          )}
         </FlexItem>
         <FlexItem>
           <Hide hide={isLoading || countIsZero}>
@@ -466,6 +496,7 @@ const PopularRepositoriesTable = () => {
               isCompact
               onPerPageSelect={onPerPageSelect}
             />
+            <Hide hide={!debouncedSearchValue}></Hide>
           </Hide>
         </FlexItem>
       </Flex>
