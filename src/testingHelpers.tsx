@@ -208,7 +208,13 @@ export const defaultSnapshotItem: SnapshotItem = {
     'rpm.packageenvironment': 1,
     'rpm.packagegroup': 20,
   },
-  removed_counts: {},
+  removed_counts: {
+    'rpm.advisory': 50,
+    'rpm.package': 50,
+    'rpm.packagecategory': 1,
+    'rpm.packageenvironment': 1,
+    'rpm.packagegroup': 1,
+  },
 };
 
 export const defaultContentItemWithSnapshot: ContentItem = {
@@ -218,7 +224,7 @@ export const defaultContentItemWithSnapshot: ContentItem = {
   name: 'AwesomeNamewwyylse12',
   org_id: '13446804',
   url: 'https://google.ca/wwyylse12/x86_64/el7',
-  uuid: '2375c35b-a67a-4ac2-a989-21139433c172',
+  uuid: '3375c35b-a67a-4ac2-a989-21139433c173',
   package_count: 0,
   status: '',
   last_introspection_error: '',
