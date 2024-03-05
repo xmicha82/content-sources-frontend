@@ -7,6 +7,7 @@ import {
   Pagination,
   PaginationVariant,
   Spinner,
+  TooltipPosition,
 } from '@patternfly/react-core';
 import {
   ActionsColumn,
@@ -83,6 +84,10 @@ const useStyles = createUseStyles({
   },
   inline: {
     display: 'flex',
+  },
+  disabledButton: {
+    pointerEvents: 'auto',
+    cursor: 'default',
   },
 });
 
@@ -295,11 +300,22 @@ const ContentListTable = () => {
                     },
                   },
                   {
-                    isDisabled: actionTakingPlace || rowData?.status === 'Retrying',
+                    id: 'actions-column-snapshot',
+                    className: (actionTakingPlace || rowData?.status === 'Retrying' || !rowData.snapshot) ? classes.disabledButton : '',
+                    isDisabled:
+                      actionTakingPlace || rowData?.status === 'Retrying' || !rowData.snapshot,
                     title: 'Trigger snapshot',
                     onClick: () => {
                       triggerSnapshot(rowData.uuid);
                     },
+                    tooltipProps: !rowData.snapshot
+                      ? {
+                          content: 'Snapshots disabled for this repository.',
+                          position: TooltipPosition.left,
+                          triggerRef: () =>
+                            document.getElementById('actions-column-snapshot') || document.body,
+                        }
+                      : undefined,
                   },
                 ]
               : []),
