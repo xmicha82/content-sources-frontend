@@ -402,11 +402,30 @@ export const triggerSnapshot: (repositoryUUID: string) => Promise<void> = async 
   return data;
 };
 
-export const getRepoConfigFile: (
-  snapshot_uuid: string,
-) => Promise<string> = async (snapshot_uuid) => {
+export const getRepoConfigFile: (snapshot_uuid: string) => Promise<string> = async (
+  snapshot_uuid,
+) => {
   const { data } = await axios.get(
     `/api/content-sources/v1/snapshots/${snapshot_uuid}/config.repo`,
+  );
+  return data;
+};
+
+export const getSnapshotPackages: (
+  snap_uuid: string,
+  page: number,
+  limit: number,
+  searchQuery: string,
+) => Promise<PackagesResponse> = async (
+  snap_uuid: string,
+  page: number,
+  limit: number,
+  searchQuery: string,
+) => {
+  const { data } = await axios.get(
+    `/api/content-sources/v1/snapshots/${snap_uuid}/rpms?offset=${
+      (page - 1) * limit
+    }&limit=${limit}&search=${searchQuery}`,
   );
   return data;
 };
