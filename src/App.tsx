@@ -8,7 +8,6 @@ import { last } from 'lodash';
 
 import Routes from './Routes';
 import { useAppContext } from './middleware/AppContext';
-import { NoPermissionsPage } from './components/NoPermissionsPage/NoPermissionsPage';
 import { ContentOrigin, FilterData } from './services/Content/ContentApi';
 import { useContentListQuery } from './services/Content/ContentQueries';
 import { perPageKey } from './Pages/ContentListTable/ContentListTable';
@@ -48,22 +47,18 @@ export default function App() {
     }
   }, [data.data.length]);
 
-  switch (true) {
-    case !rbac || isFetchingFeatures || isLoading:
-      return (
-        <Bullseye>
-          <Spinner size='xl' />
-        </Bullseye>
-      );
-    case rbac?.read:
-      return (
-        <>
-          <NotificationsPortal />
-          <Routes />
-        </>
-      );
-
-    default:
-      return <NoPermissionsPage />;
+  if (!rbac || isFetchingFeatures || isLoading) {
+    return (
+      <Bullseye>
+        <Spinner size='xl' />
+      </Bullseye>
+    );
   }
+
+  return (
+    <>
+      <NotificationsPortal />
+      <Routes />
+    </>
+  );
 }

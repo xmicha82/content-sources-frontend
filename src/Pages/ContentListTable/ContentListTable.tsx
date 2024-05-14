@@ -497,7 +497,7 @@ const ContentListTable = () => {
               notFilteredButton={
                 <ConditionalTooltip
                   content='You do not have the required permissions to perform this action.'
-                  show={!rbac?.write}
+                  show={!rbac?.repoWrite}
                   setDisabled
                 >
                   <Button
@@ -533,7 +533,7 @@ const ContentListTable = () => {
                 >
                   <Thead>
                     <Tr>
-                      <Hide hide={!rbac?.write || isRedHatRepository}>
+                      <Hide hide={!rbac?.repoWrite || isRedHatRepository}>
                         <Th
                           aria-label='select-repo-checkbox'
                           className={classes.checkboxMinWidth}
@@ -572,7 +572,7 @@ const ContentListTable = () => {
                       } = rowData;
                       return (
                         <Tr key={uuid + status}>
-                          <Hide hide={!rbac?.write || isRedHatRepository}>
+                          <Hide hide={!rbac?.repoWrite || isRedHatRepository}>
                             <Td
                               select={{
                                 rowIndex: index,
@@ -631,7 +631,7 @@ const ContentListTable = () => {
                                 }
                                 show={
                                   !isRedHatRepository &&
-                                  (!rbac?.write || rowData?.status === 'Pending')
+                                  (!rbac?.repoWrite || rowData?.status === 'Pending')
                                 }
                                 setDisabled
                               >
@@ -670,7 +670,7 @@ const ContentListTable = () => {
                 notFilteredButton={
                   <ConditionalTooltip
                     content='You do not have the required permissions to perform this action.'
-                    show={!rbac?.write}
+                    show={!rbac?.repoWrite}
                     setDisabled
                   >
                     <Button

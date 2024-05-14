@@ -19,10 +19,11 @@ import {
   TabbedRouteItem,
 } from '../constants';
 import SnapshotDetailsModal from '../../Pages/ContentListTable/components/SnapshotDetailsModal/SnapshotDetailsModal';
+import { NoPermissionsPage } from '../../components/NoPermissionsPage/NoPermissionsPage';
 
 export default function useRepositoryRoutes(): TabbedRouteItem[] {
   const { features, rbac } = useAppContext();
-  const hasWrite = rbac?.write;
+  const hasWrite = rbac?.repoWrite;
 
   // Wrap in a memo to prevent recalculation if values haven't changed.
   const tabs = useMemo(
@@ -66,6 +67,17 @@ export default function useRepositoryRoutes(): TabbedRouteItem[] {
     ],
     [hasWrite, features],
   );
+
+  if (!rbac?.repoRead) {
+    return [
+      {
+        title: 'Your repositories',
+        route: REPOSITORIES_ROUTE,
+        Element: () => <NoPermissionsPage />,
+        ChildRoutes: [],
+      },
+    ];
+  }
 
   return tabs;
 }
