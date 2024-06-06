@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { useAppContext } from '../../middleware/AppContext';
+import { useAppContext } from 'middleware/AppContext';
 import { ADD_ROUTE, EDIT_ROUTE, TEMPLATES_ROUTE, TabbedRouteItem } from '../constants';
-import TemplatesTable from '../../Pages/TemplatesTable/TemplatesTable';
-import { AddTemplate } from '../../Pages/TemplatesTable/components/AddTemplate/AddTemplate';
-import { NoPermissionsPage } from '../../components/NoPermissionsPage/NoPermissionsPage';
+import TemplatesTable from 'Pages/Templates/TemplatesTable/TemplatesTable';
+import { AddTemplate } from 'Pages/Templates/TemplatesTable/components/AddTemplate/AddTemplate';
+import { NoPermissionsPage } from 'components/NoPermissionsPage/NoPermissionsPage';
 
 export default function useTemplateRoutes(): TabbedRouteItem[] {
   const { features, rbac, chrome } = useAppContext();
