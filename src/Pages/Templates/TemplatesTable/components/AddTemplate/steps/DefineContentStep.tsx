@@ -74,6 +74,7 @@ export default function DefineContentStep() {
             onSelect={(value) => setTemplateRequest((prev) => ({ ...prev, arch: value as string }))}
             dropDownItems={allowedDistributionarches}
             menuValue={archesDisplay(templateRequest?.arch)}
+            menuToggleProps={{ 'data-ouia-component-id': 'restrict_to_architecture' }}
           />
         </ConditionalTooltip>
       </FormGroup>
@@ -90,6 +91,7 @@ export default function DefineContentStep() {
             }
             dropDownItems={allowedDistributionVersions}
             menuValue={versionDisplay(templateRequest?.version)}
+            menuToggleProps={{ 'data-ouia-component-id': 'restrict_to_os_version' }}
           />
         </ConditionalTooltip>
       </FormGroup>
