@@ -18,6 +18,7 @@ import {
   Thead,
   ThProps,
   Tr,
+  type BaseCellProps,
 } from '@patternfly/react-table';
 import { global_BackgroundColor_100 } from '@patternfly/react-tokens';
 import { useMemo, useState } from 'react';
@@ -30,17 +31,20 @@ import { TemplateFilterData, TemplateItem } from 'services/Templates/TemplateApi
 import { useDeleteTemplateItemMutate, useTemplateList } from 'services/Templates/TemplateQueries';
 import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
 import { useAppContext } from 'middleware/AppContext';
-import { useRepositoryParams } from 'services/Content/ContentQueries';
 import TemplateFilters from './components/TemplateFilters';
 import { formatDateDDMMMYYYY } from 'helpers';
 import { useQueryClient } from 'react-query';
 import Header from 'components/Header/Header';
+import useRootPath from 'Hooks/useRootPath';
+import { DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
+import useArchVersion from 'Hooks/useArchVersion';
 
 const useStyles = createUseStyles({
   mainContainer: {
     backgroundColor: global_BackgroundColor_100.value,
     display: 'flex',
     flexDirection: 'column',
+    margin: '24px',
   },
   mainContainer100Height: {
     composes: ['$mainContainer'], // This extends another class within this stylesheet
@@ -53,7 +57,7 @@ const useStyles = createUseStyles({
   },
   bottomContainer: {
     justifyContent: 'space-between',
-    height: 'fit-content',
+    minHeight: '68px',
   },
   invisible: {
     opacity: 0,
@@ -61,12 +65,16 @@ const useStyles = createUseStyles({
   spinnerMinWidth: {
     width: '50px!important',
   },
+  leftPaddingZero: {
+    paddingLeft: 0,
+  },
 });
 
 const perPageKey = 'templatesPerPage';
 
 const TemplatesTable = () => {
   const classes = useStyles();
+  const rootPath = useRootPath();
   const navigate = useNavigate();
   const { rbac } = useAppContext();
   const queryClient = useQueryClient();
@@ -105,13 +113,8 @@ const TemplatesTable = () => {
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
   } = useTemplateList(page, perPage, sortString, filterData);
 
-  const { mutateAsync: deleteItem, isLoading: isDeleting } = useDeleteTemplateItemMutate(
-    queryClient,
-    page,
-    perPage,
-    sortString,
-    filterData,
-  );
+  const { mutateAsync: deleteItem, isLoading: isDeleting } =
+    useDeleteTemplateItemMutate(queryClient);
 
   const onSetPage = (_, newPage: number) => setPage(newPage);
 
@@ -135,28 +138,27 @@ const TemplatesTable = () => {
     columnIndex,
   });
 
-  const columnHeaders = ['Name', 'Description', 'Architecture', 'Version', 'Date'];
+  const columnHeaders: { title: string; width?: BaseCellProps['width'] }[] = [
+    { title: 'Name', width: 10 },
+    { title: 'Description' },
+    { title: 'Architecture', width: 10 },
+    { title: 'Version', width: 10 },
+    { title: 'Date', width: 10 },
+  ];
 
   const {
     isLoading: repositoryParamsLoading,
     error: repositoryParamsError,
     isError: repositoryParamsIsError,
-    data: { distribution_versions: distVersions, distribution_arches: distArches } = {
-      distribution_versions: [],
-      distribution_arches: [],
-    },
-  } = useRepositoryParams();
+    archesDisplay,
+    versionDisplay,
+  } = useArchVersion();
 
   const actionTakingPlace = isLoading || isFetching || repositoryParamsLoading || isDeleting;
 
   // Error is caught in the wrapper component
   if (isError) throw error;
   if (repositoryParamsIsError) throw repositoryParamsError;
-
-  const archesDisplay = (arch: string) => distArches.find(({ label }) => arch === label)?.name;
-
-  const versionDisplay = (version: string) =>
-    distVersions.find(({ label }) => version === label)?.name;
 
   const {
     data: templateList = [],
@@ -257,9 +259,9 @@ const TemplatesTable = () => {
             >
               <Thead>
                 <Tr>
-                  {columnHeaders.map((columnHeader, index) => (
-                    <Th key={columnHeader + 'column'} sort={sortParams(index)}>
-                      {columnHeader}
+                  {columnHeaders.map(({ title, width }, index) => (
+                    <Th key={title + 'column'} width={width} sort={sortParams(index)}>
+                      {title}
                     </Th>
                   ))}
                   <Th className={classes.spinnerMinWidth}>
@@ -271,7 +273,17 @@ const TemplatesTable = () => {
                 {templateList.map(
                   ({ uuid, name, description, arch, version, date }: TemplateItem, index) => (
                     <Tr key={uuid + index}>
-                      <Td>{name}</Td>
+                      <Td>
+                        <Button
+                          className={classes.leftPaddingZero}
+                          variant='link'
+                          onClick={() =>
+                            navigate(`${rootPath}/${TEMPLATES_ROUTE}/${uuid}/${DETAILS_ROUTE}`)
+                          }
+                        >
+                          {name}
+                        </Button>
+                      </Td>
                       <Td>{description}</Td>
                       <Td>{archesDisplay(arch)}</Td>
                       <Td>{versionDisplay(version)}</Td>
