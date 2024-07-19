@@ -227,6 +227,12 @@ const ContentListTable = () => {
     sortString,
   );
 
+  const triggerIntrospectionAndSnapshot = async (repoUuid: string): Promise<void> => {
+    clearCheckedRepositories();
+    await introspectRepoForUuid(repoUuid)
+    await triggerSnapshot(repoUuid);
+  }
+
   // Other update actions will be added to this later.
   const actionTakingPlace =
     isFetching || repositoryParamsLoading || isIntrospecting || isDeletingItems;
@@ -315,10 +321,9 @@ const ContentListTable = () => {
                   {
                     isDisabled:
                       actionTakingPlace ||
-                      !rowData.snapshot ||
-                      !(rowData.snapshot && rowData.last_snapshot_uuid),
+                      !rowData.last_snapshot_uuid,
                     title:
-                      rowData.snapshot && rowData.last_snapshot_uuid
+                      rowData.last_snapshot_uuid
                         ? 'View all snapshots'
                         : 'No snapshots yet',
                     onClick: () => {
@@ -335,7 +340,7 @@ const ContentListTable = () => {
                       actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot,
                     title: 'Trigger snapshot',
                     onClick: () => {
-                      triggerSnapshot(rowData.uuid);
+                        triggerIntrospectionAndSnapshot(rowData?.uuid);
                     },
                     tooltipProps: !rowData.snapshot
                       ? {
@@ -348,11 +353,16 @@ const ContentListTable = () => {
                   },
                 ]
               : []),
-            {
-              isDisabled: actionTakingPlace || rowData?.status == 'Pending',
-              title: 'Introspect now',
-              onClick: () => introspectRepoForUuid(rowData?.uuid).then(clearCheckedRepositories),
-            },
+            ...(!rowData?.snapshot
+              ? [
+                  {
+                    isDisabled: actionTakingPlace || rowData?.status == 'Pending',
+                    title: 'Introspect now',
+                    onClick: () =>
+                      introspectRepoForUuid(rowData?.uuid).then(clearCheckedRepositories),
+                  },
+                ]
+              : []),
             { isSeparator: true },
             {
               title: 'Delete',
