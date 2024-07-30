@@ -144,8 +144,9 @@ const PopularRepositoriesTable = () => {
   const debouncedSearchValue = useDebounce(searchValue);
   const [perPage, setPerPage] = useState(storedPerPage);
   const [isActionOpen, setIsActionOpen] = useState(false);
-  const { isProd } = useChrome();
+  const { isProd, isBeta } = useChrome();
   const isInProd = useMemo(() => isProd() === true, []);
+  const isInBeta = useMemo(() => isBeta() === true, []);
 
   const onDropdownToggle = (_, isActionOpen: boolean) => {
     setIsActionOpen(isActionOpen);
@@ -344,7 +345,7 @@ const PopularRepositoriesTable = () => {
   const countIsZero = !data?.data?.length;
 
   const dropdownItems = useMemo(() => {
-    if (isInProd) {
+    if (isInProd && !isInBeta) {
       return [
         <DropdownItem
           key='action'
@@ -366,7 +367,7 @@ const PopularRepositoriesTable = () => {
           {`Add ${checkedRepositoriesToAdd.size} repositories without snapshotting`}
         </DropdownItem>,
       ];
-  }, [isInProd, checkedRepositoriesToAdd.size]);
+  }, [isInProd, isInBeta, checkedRepositoriesToAdd.size]);
 
   return (
     <>
@@ -415,7 +416,7 @@ const PopularRepositoriesTable = () => {
                     if (features?.snapshots?.enabled && features.snapshots.accessible) {
                       const className = isDisabled ? classes.disabledDropdownButton : undefined;
                       // temporarily disable snapshotting by default for popular repos
-                      if (isInProd) {
+                      if (isInProd && !isInBeta) {
                         return (
                           <Dropdown
                             onSelect={onDropdownSelect}
