@@ -3,6 +3,7 @@ import {
   Bullseye,
   Button,
   ExpandableSection,
+  ExpandableSectionToggle,
   List,
   ListItem,
   Modal,
@@ -26,6 +27,7 @@ import {
 import { useQueryClient } from 'react-query';
 import { useHref, useLocation, useNavigate } from 'react-router-dom';
 import { useContentListOutletContext } from '../../ContentListTable';
+import { usePopularListOutletContext } from '../../../PopularRepositoriesTable/PopularRepositoriesTable';
 import useRootPath from 'Hooks/useRootPath';
 import { GET_TEMPLATES_KEY, useTemplateList } from 'services/Templates/TemplateQueries';
 import { TemplateFilterData, TemplateItem } from 'services/Templates/TemplateApi';
@@ -54,6 +56,9 @@ const useStyles = createUseStyles({
   templateColumnMinWidth: {
     minWidth: '200px!important',
   },
+  expandableSectionMargin: {
+    marginTop: '8px'
+  }
 });
 
 export default function DeleteContentModal() {
@@ -72,10 +77,18 @@ export default function DeleteContentModal() {
     clearCheckedRepositories,
     deletionContext: { page, perPage, filterData, contentOrigin, sortString, checkedRepositories },
   } = useContentListOutletContext();
+  const {
+    deletionContext: { checkedRepositoriesToDelete },
+  } = usePopularListOutletContext();
 
-  const uuids =
-    new URLSearchParams(search).get('repoUUID')?.split(',') ||
-    Array.from(checkedRepositories) ||
+  const repoUUIDFromPath = new URLSearchParams(search).get('repoUUID')?.split(',');
+  const checkedCustomRepos = checkedRepositories ? Array.from(checkedRepositories) : [];
+  const checkedPopularRepos =  checkedRepositoriesToDelete ? Array.from(checkedRepositoriesToDelete) : [];
+
+  const uuids = 
+    repoUUIDFromPath?.length ? repoUUIDFromPath : 
+    checkedCustomRepos.length ? checkedCustomRepos :
+    checkedPopularRepos.length? checkedPopularRepos :
     [];
   const reposToDelete = new Set(uuids);
 
@@ -212,7 +225,7 @@ export default function DeleteContentModal() {
                                 className={classes.link}
                                 variant='link'
                                 component='a'
-                                href={pathname + '/' + TEMPLATES_ROUTE + `/${template.uuid}/edit`}
+                                href={pathname + '/' + TEMPLATES_ROUTE + `/${template.uuid}/edit?tab=custom_repositories`}
                                 target='_blank'
                               >
                                 {template.name}
@@ -221,15 +234,11 @@ export default function DeleteContentModal() {
                           ))}
                         <Hide hide={templatesWithRepos.length <= maxTemplatesToShow}>
                           <ExpandableSection
-                            toggleText={
-                              expandState[index]
-                                ? 'Show less'
-                                : `and ${templatesWithRepos.length - maxTemplatesToShow} more`
-                            }
-                            onToggle={() =>
-                              setExpandState((prev) => ({ ...prev, [index]: !prev[index] }))
-                            }
-                            isExpanded={!!expandState[index]}
+                            isExpanded={expandState[index]}
+                            isDetached
+                            toggleId={expandState[index] ? 'detached-expandable-section-toggle-open' : 'detached-expandable-section-toggle'}
+                            contentId={expandState[index] ? 'detached-expandable-section-content-open' : 'detached-expandable-section-content'}
+                            className={classes.expandableSectionMargin}
                           >
                             {templatesWithRepos
                               .slice(maxTemplatesToShow, templatesWithRepos.length)
@@ -241,7 +250,7 @@ export default function DeleteContentModal() {
                                     variant='link'
                                     component='a'
                                     href={
-                                      pathname + '/' + TEMPLATES_ROUTE + `/${template.uuid}/edit`
+                                      pathname + '/' + TEMPLATES_ROUTE + `/${template.uuid}/edit?tab=custom_repositories`
                                     }
                                     target='_blank'
                                   >
@@ -250,6 +259,20 @@ export default function DeleteContentModal() {
                                 </ListItem>
                               ))}
                           </ExpandableSection>
+                          <ExpandableSectionToggle
+                            isExpanded={expandState[index]}
+                            onToggle={() =>
+                                setExpandState((prev) => ({ ...prev, [index]: !prev[index] }))
+                                }
+                            toggleId={expandState[index] ? 'detached-expandable-section-toggle-open' : 'detached-expandable-section-toggle'}
+                            contentId={expandState[index] ? 'detached-expandable-section-content-open' : 'detached-expandable-section-content'}
+                            direction='up'
+                          >
+                            {expandState[index]
+                                ? 'Show less'
+                                : `and ${templatesWithRepos.length - maxTemplatesToShow} more`
+                            }
+                          </ExpandableSectionToggle>
                         </Hide>
                       </List>
                     ) : (
