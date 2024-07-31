@@ -150,12 +150,11 @@ export type ValidationResponse = {
 
 export interface PackageItem {
   arch: string;
-  epoch: number;
+  epoch: string;
   name: string;
   release: string;
-  checksum: string;
+  checksum?: string;
   summary: string;
-  uuid: string;
   version: string;
 }
 
@@ -170,6 +169,7 @@ export interface ErrataItem {
   type: string;
   severity: string;
   reboot_suggested: boolean;
+  cves: string[];
 }
 
 export type PackagesResponse = {
@@ -388,20 +388,17 @@ export const getSnapshotList: (
   uuid: string,
   page: number,
   limit: number,
-  search: string,
   sortBy: string,
 ) => Promise<SnapshotListResponse> = async (
   uuid: string,
   page: number,
   limit: number,
-  search: string,
   sortBy: string,
 ) => {
   const { data } = await axios.get(
     `/api/content-sources/v1.0/repositories/${uuid}/snapshots/?${objectToUrlParams({
       offset: ((page - 1) * limit).toString(),
       limit: limit?.toString(),
-      search,
       sort_by: sortBy,
     })}`,
   );

@@ -157,6 +157,7 @@ export default function PackageModal() {
             isFetchingOrLoading={fetchingOrLoading}
             isLoadingOrZeroCount={loadingOrZeroCount}
             clearSearch={() => setSearchQuery('')}
+            search={debouncedSearchQuery}
             perPage={perPage}
           />
           <Flex className={classes.bottomContainer}>
