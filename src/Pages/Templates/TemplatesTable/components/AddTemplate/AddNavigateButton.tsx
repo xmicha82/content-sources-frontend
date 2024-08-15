@@ -21,12 +21,13 @@ export const AddNavigateButton = ({ isAdding, add, onClose }: Props) => {
       <Button variant={ButtonVariant.secondary} onClick={goToPrevStep}>
         Back
       </Button>
-
       <DropdownSelect
-        options={[{ isDisabled: isAdding, children: 'Create template only', type: 'submit' }]}
+        dropDownItems={[{ isDisabled: isAdding, children: 'Create template only', type: 'submit' }]}
+        ouiaId='create_template'
         onSelect={() => add().then(() => onClose())}
-        toggleValue={undefined}
-        toggleProps={{
+        menuValue=''
+        menuToggleProps={{
+          isFullWidth: false,
           variant: 'primary',
           splitButtonOptions: {
             variant: 'action',
