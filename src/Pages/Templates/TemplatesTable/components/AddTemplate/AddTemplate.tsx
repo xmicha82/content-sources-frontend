@@ -4,6 +4,7 @@ import {
   ModalVariant,
   Spinner,
   Wizard,
+  WizardFooterWrapper,
   WizardHeader,
   WizardStep,
 } from '@patternfly/react-core';
@@ -83,6 +84,7 @@ const AddTemplateBase = () => {
 
   return (
     <Modal
+      ouiaId={`${isEdit ? 'edit' : 'add'}_template_modal`}
       aria-label={`${isEdit ? 'edit' : 'add'} template modal`}
       variant={ModalVariant.large}
       showClose={isEdit && isEmpty(templateRequest)}
@@ -180,7 +182,9 @@ const AddTemplateBase = () => {
                   isNextDisabled: isEditing,
                 }
               ) : (
-                <AddNavigateButton isAdding={isAdding} onClose={onClose} add={addTemplate} />
+                <WizardFooterWrapper>
+                  <AddNavigateButton isAdding={isAdding} onClose={onClose} add={addTemplate} />
+                </WizardFooterWrapper>
               )
             }
           >
