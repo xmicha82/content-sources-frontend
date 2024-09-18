@@ -7,10 +7,14 @@ import {
   DETAILS_ROUTE,
   PACKAGES_ROUTE,
   SYSTEMS_ROUTE,
+  REPOSITORIES_ROUTE,
 } from 'Routes/constants';
 
 type ContentTabType = typeof CONTENT_ROUTE | typeof SYSTEMS_ROUTE;
-type ContentSubTabType = typeof PACKAGES_ROUTE | typeof ADVISORIES_ROUTE;
+type ContentSubTabType =
+  | typeof PACKAGES_ROUTE
+  | typeof ADVISORIES_ROUTE
+  | typeof REPOSITORIES_ROUTE;
 
 export default function TemplateDetailsTabs() {
   const { pathname } = useLocation();
@@ -69,6 +73,12 @@ export default function TemplateDetailsTabs() {
             ouiaId='advisories_tab'
             title={<TabTitleText>Advisories</TabTitleText>}
             aria-label='Template advisories detail tab'
+          />
+          <Tab
+            eventKey={REPOSITORIES_ROUTE}
+            ouiaId='repositories_tab'
+            title={<TabTitleText>Repositories</TabTitleText>}
+            aria-label='Template repositories detail tab'
           />
         </Tabs>
       </Tab>
