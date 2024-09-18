@@ -27,12 +27,15 @@ export IQE_MARKER_EXPRESSION="smoke and ui"
 export IQE_FILTER_EXPRESSION=""
 export IQE_ENV="ephemeral"
 export IQE_SELENIUM="true"
-export IQE_CJI_TIMEOUT="30m"
-export DEPLOY_TIMEOUT="900" # 15min
+export IQE_CJI_TIMEOUT="60m"
+export DEPLOY_TIMEOUT="1800"
 export DEPLOY_FRONTENDS="true"
 export REF_ENV="insights-stage"
 
 export COMPONENTS_W_RESOURCES="pulp"
+
+# Only deploy one small red hat repo
+EXTRA_DEPLOY_ARGS="--set-parameter content-sources-backend/OPTIONS_REPOSITORY_IMPORT_FILTER=small --set-parameter content-sources-backend/SUSPEND_CRON_JOB=true"
 
 set -exv
 
