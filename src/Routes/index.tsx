@@ -43,7 +43,7 @@ import TemplateRepositoriesTab from 'Pages/Templates/TemplateDetails/components/
 
 export default function RepositoriesRoutes() {
   const key = useMemo(() => Math.random(), []);
-  const { zeroState, features, rbac } = useAppContext();
+  const { zeroState, features, rbac, subscriptions } = useAppContext();
   return (
     <ErrorPage>
       <Routes key={key}>
@@ -114,15 +114,26 @@ export default function RepositoriesRoutes() {
             <Route path='*' element={<Navigate to={PACKAGES_ROUTE} replace />} />
           </Route>
           <Route path={SYSTEMS_ROUTE} element={<TemplateSystemsTab />}>
-            {rbac?.templateWrite ? <Route path={ADD_ROUTE} element={<AddSystemModal />} /> : ''}
+            {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
+              <Route path={ADD_ROUTE} element={<AddSystemModal />} />
+            ) : (
+              ''
+            )}
           </Route>
-          <Route path='*' element={<Navigate to={TEMPLATES_ROUTE} replace />} />
         </Route>
         <Route path={TEMPLATES_ROUTE} element={<TemplatesTable />}>
-          {rbac?.templateWrite ? (
+          {rbac?.templateWrite && subscriptions?.red_hat_enterprise_linux ? (
             <>
               <Route key='1' path={ADD_ROUTE} element={<AddTemplate />} />
               <Route key='2' path={`:templateUUID/${EDIT_ROUTE}`} element={<AddTemplate />} />
+              <Route
+                key='3'
+                path={`:templateUUID/${DELETE_ROUTE}`}
+                element={<DeleteTemplateModal />}
+              />
+            </>
+          ) : rbac?.templateWrite ? (
+            <>
               <Route
                 key='3'
                 path={`:templateUUID/${DELETE_ROUTE}`}

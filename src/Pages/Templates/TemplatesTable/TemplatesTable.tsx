@@ -7,6 +7,7 @@ import {
   Pagination,
   PaginationVariant,
   Spinner,
+  TooltipPosition,
 } from '@patternfly/react-core';
 import {
   ActionsColumn,
@@ -67,6 +68,10 @@ const useStyles = createUseStyles({
   leftPaddingZero: {
     paddingLeft: 0,
   },
+  disabledButton: {
+    pointerEvents: 'auto',
+    cursor: 'default',
+  },
 });
 
 const perPageKey = 'templatesPerPage';
@@ -75,7 +80,7 @@ const TemplatesTable = () => {
   const classes = useStyles();
   const rootPath = useRootPath();
   const navigate = useNavigate();
-  const { rbac } = useAppContext();
+  const { rbac, subscriptions } = useAppContext();
   const storedPerPage = Number(localStorage.getItem(perPageKey)) || 20;
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(storedPerPage);
@@ -171,6 +176,11 @@ const TemplatesTable = () => {
 
   const countIsZero = count === 0;
 
+  const hasRHELSubscription = !!subscriptions?.red_hat_enterprise_linux;
+  const isMissingRequirements = !rbac?.templateWrite || !hasRHELSubscription;
+  const missingRequirements =
+    rbac?.templateWrite && !hasRHELSubscription ? 'subscription (RHEL)' : 'permission';
+
   if (countIsZero && notFiltered && !isLoading)
     return (
       <Bullseye data-ouia-component-id='content_template_list_page'>
@@ -181,8 +191,8 @@ const TemplatesTable = () => {
           notFilteredBody={notFilteredBody}
           notFilteredButton={
             <ConditionalTooltip
-              content='You do not have the required permissions to perform this action.'
-              show={!rbac?.templateWrite}
+              content={`You do not have the required ${missingRequirements} to perform this action.`}
+              show={isMissingRequirements}
               setDisabled
             >
               <Button
@@ -299,15 +309,28 @@ const TemplatesTable = () => {
                       </Td>
                       <Td>
                         <ConditionalTooltip
-                          content='You do not have the required permissions to perform this action.'
+                          content='You do not have the required permission to perform this action.'
                           show={!rbac?.templateWrite}
                           setDisabled
                         >
                           <ActionsColumn
                             items={[
                               {
+                                id: 'actions-column-edit',
+                                className: isMissingRequirements ? classes.disabledButton : '',
                                 title: 'Edit',
                                 onClick: () => navigate(`${uuid}/edit`),
+                                isDisabled: isMissingRequirements,
+                                tooltipProps: isMissingRequirements
+                                  ? {
+                                      isVisible: isMissingRequirements,
+                                      content: `You do not have the required ${missingRequirements} to perform this action.`,
+                                      position: TooltipPosition.left,
+                                      triggerRef: () =>
+                                        document.getElementById('actions-column-edit') ||
+                                        document.body,
+                                    }
+                                  : undefined,
                               },
                               { isSeparator: true },
                               {
@@ -348,8 +371,8 @@ const TemplatesTable = () => {
             notFilteredBody={notFilteredBody}
             notFilteredButton={
               <ConditionalTooltip
-                content='You do not have the required permissions to perform this action.'
-                show={!rbac?.templateWrite}
+                content={`You do not have the required ${missingRequirements} to perform this action.`}
+                show={isMissingRequirements}
                 setDisabled
               >
                 <Button
