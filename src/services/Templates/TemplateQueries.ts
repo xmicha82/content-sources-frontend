@@ -27,6 +27,8 @@ export const GET_TEMPLATE_PACKAGES_KEY = 'GET_TEMPLATE_PACKAGES_KEY';
 export const TEMPLATE_ERRATA_KEY = 'TEMPLATE_ERRATA_KEY';
 export const TEMPLATE_SNAPSHOTS_KEY = 'TEMPLATE_SNAPSHOTS_KEY';
 
+const TEMPLATE_LIST_POLLING_TIME = 15000; // 15 seconds
+
 export const useEditTemplateQuery = (queryClient: QueryClient, request: EditTemplateRequest) => {
   const errorNotifier = useErrorNotification();
   const { notify } = useNotification();
@@ -157,6 +159,7 @@ export const useTemplateList = (
   limit: number,
   sortBy: string,
   filterData: TemplateFilterData,
+  polling: boolean = false,
 ) => {
   const errorNotifier = useErrorNotification();
   return useQuery<TemplateCollectionResponse>(
@@ -172,6 +175,7 @@ export const useTemplateList = (
           'template-list-error',
         );
       },
+      refetchInterval: polling ? TEMPLATE_LIST_POLLING_TIME : undefined,
       keepPreviousData: true,
       staleTime: 20000,
     },

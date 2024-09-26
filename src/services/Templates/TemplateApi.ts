@@ -7,6 +7,7 @@ import {
   SnapshotListResponse,
 } from '../Content/ContentApi';
 import { objectToUrlParams } from 'helpers';
+import { AdminTask } from 'services/AdminTasks/AdminTaskApi';
 
 export interface TemplateRequest {
   arch: string;
@@ -36,6 +37,9 @@ export interface TemplateItem {
   updated_at: string;
   created_by: string;
   last_updated_by: string;
+  last_update_task_uuid?: string;
+  last_update_task?: AdminTask;
+  last_update_snapshot_error: string;
 }
 
 export interface TemplateCollectionResponse {

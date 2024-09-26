@@ -22,7 +22,7 @@ import {
   type BaseCellProps,
 } from '@patternfly/react-table';
 import { global_BackgroundColor_100 } from '@patternfly/react-tokens';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import { SkeletonTable } from '@patternfly/react-component-groups';
 import Hide from 'components/Hide/Hide';
@@ -38,6 +38,7 @@ import useRootPath from 'Hooks/useRootPath';
 import { DELETE_ROUTE, DETAILS_ROUTE, TEMPLATES_ROUTE } from 'Routes/constants';
 import useArchVersion from 'Hooks/useArchVersion';
 import { useTemplateList } from 'services/Templates/TemplateQueries';
+import StatusIcon from './components/StatusIcon';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -86,6 +87,8 @@ const TemplatesTable = () => {
   const [perPage, setPerPage] = useState(storedPerPage);
   const [activeSortIndex, setActiveSortIndex] = useState<number>(3); // queued_at
   const [activeSortDirection, setActiveSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [polling, setPolling] = useState(false);
+  const [pollCount, setPollCount] = useState(0);
 
   const defaultValues: TemplateFilterData = {
     arch: '',
@@ -117,7 +120,33 @@ const TemplatesTable = () => {
     isError,
     isFetching,
     data = { data: [], meta: { count: 0, limit: 20, offset: 0 } },
-  } = useTemplateList(page, perPage, sortString, filterData);
+  } = useTemplateList(page, perPage, sortString, filterData, polling);
+
+  useEffect(() => {
+    if (isError) {
+      setPolling(false);
+      setPollCount(0);
+      return;
+    }
+    const containsPending = data?.data?.some(
+      ({ last_update_task }) =>
+        last_update_task?.status === 'running' || last_update_task?.status === 'pending',
+    );
+    if (polling && containsPending) {
+      // Count each consecutive time polling occurs
+      setPollCount(pollCount + 1);
+    }
+    if (polling && !containsPending) {
+      // We were polling, but now the data is valid, we stop the count.
+      setPollCount(0);
+    }
+    if (pollCount > 40) {
+      // If polling occurs 40 times in a row, we stop it. Likely a data/kafka issue has occurred with the API.
+      return setPolling(false);
+    }
+    // This sets the polling state based whether the data contains any "pending" or "running" status
+    return setPolling(containsPending);
+  }, [data?.data]);
 
   const onSetPage = (_, newPage: number) => setPage(newPage);
 
@@ -150,6 +179,7 @@ const TemplatesTable = () => {
     { title: 'Architecture', width: 10 },
     { title: 'Version', width: 10 },
     { title: 'Snapshot date', width: 15 },
+    { title: 'Status', width: 15 },
   ];
 
   const {
@@ -266,11 +296,17 @@ const TemplatesTable = () => {
             >
               <Thead>
                 <Tr>
-                  {columnHeaders.map(({ title, width }, index) => (
-                    <Th key={title + 'column'} width={width} sort={sortParams(index)}>
-                      {title}
-                    </Th>
-                  ))}
+                  {columnHeaders.map(({ title, width }, index) =>
+                    title === 'Status' ? (
+                      <Th key={title + 'column'} width={width}>
+                        {title}
+                      </Th>
+                    ) : (
+                      <Th key={title + 'column'} width={width} sort={sortParams(index)}>
+                        {title}
+                      </Th>
+                    ),
+                  )}
                   <Th className={classes.spinnerMinWidth}>
                     <Spinner size='md' className={actionTakingPlace ? '' : classes.invisible} />
                   </Th>
@@ -279,7 +315,17 @@ const TemplatesTable = () => {
               <Tbody>
                 {templateList.map(
                   (
-                    { uuid, name, description, arch, version, date, use_latest }: TemplateItem,
+                    {
+                      uuid,
+                      name,
+                      description,
+                      arch,
+                      version,
+                      date,
+                      use_latest,
+                      last_update_snapshot_error,
+                      last_update_task,
+                    }: TemplateItem,
                     index,
                   ) => (
                     <Tr key={uuid + index}>
@@ -306,6 +352,13 @@ const TemplatesTable = () => {
                         >
                           <p>{use_latest ? 'Use latest' : formatDateDDMMMYYYY(date)}</p>
                         </ConditionalTooltip>
+                      </Td>
+                      <Td>
+                        <StatusIcon
+                          uuid={uuid}
+                          last_update_snapshot_error={last_update_snapshot_error}
+                          last_update_task={last_update_task}
+                        />
                       </Td>
                       <Td>
                         <ConditionalTooltip
