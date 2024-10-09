@@ -1,6 +1,6 @@
 import { AlertVariant } from '@patternfly/react-core';
 import { useState } from 'react';
-import { QueryClient, useMutation, useQuery } from 'react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from 'react-query';
 import { cloneDeep } from 'lodash';
 
 import {
@@ -14,7 +14,6 @@ import {
   FilterData,
   validateContentListItems,
   EditContentListItem,
-  EditContentRequest,
   getGpgKey,
   PackagesResponse,
   getPackages,
@@ -37,6 +36,10 @@ import {
   getSnapshotPackages,
   getSnapshotErrata,
   ErrataResponse,
+  type EditContentRequestItem,
+  type ValidateContentRequestItem,
+  addUploads,
+  type AddUploadRequest,
 } from './ContentApi';
 import { ADMIN_TASK_LIST_KEY } from '../AdminTasks/AdminTaskQueries';
 import useErrorNotification from 'Hooks/useErrorNotification';
@@ -68,9 +71,9 @@ const buildContentListKey = (
     '',
   )}${filterData?.statuses?.join('')}${filterData?.availableForArch}${filterData?.availableForVersion}${filterData?.searchQuery}`;
 
-export const useFetchContent = (uuids: string[]) => {
+export const useFetchContent = (uuid: string, enabled = true) => {
   const errorNotifier = useErrorNotification();
-  return useQuery<ContentItem>([CONTENT_ITEM_KEY, ...uuids], () => fetchContentItem(uuids[0]), {
+  return useQuery<ContentItem>([CONTENT_ITEM_KEY, uuid], () => fetchContentItem(uuid), {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) =>
       errorNotifier(
@@ -81,6 +84,7 @@ export const useFetchContent = (uuids: string[]) => {
       ),
     keepPreviousData: true,
     staleTime: 20000,
+    enabled,
   });
 };
 
@@ -142,7 +146,8 @@ export const useContentListQuery = (
   );
 };
 
-export const useAddContentQuery = (queryClient: QueryClient, request: CreateContentRequest) => {
+export const useAddContentQuery = (request: CreateContentRequest) => {
+  const queryClient = useQueryClient();
   const errorNotifier = useErrorNotification();
   const { notify } = useNotification();
   return useMutation(() => AddContentListItems(request.filter((item) => !!item)), {
@@ -155,9 +160,13 @@ export const useAddContentQuery = (queryClient: QueryClient, request: CreateCont
           request?.length > 1
             ? `${request?.length} custom repositories added`
             : `Custom repository "${request?.[0]?.name}" added`,
-        description: hasPending
-          ? 'Repository introspection in progress'
-          : 'Repository introspection data already available',
+        ...(request[0]?.origin === ContentOrigin.UPLOAD
+          ? {}
+          : {
+              description: hasPending
+                ? 'Repository introspection in progress'
+                : 'Repository introspection data already available',
+            }),
         id: 'add-content-success',
       });
 
@@ -172,6 +181,37 @@ export const useAddContentQuery = (queryClient: QueryClient, request: CreateCont
         'An error occurred',
         err,
         'add-content-error',
+      );
+    },
+  });
+};
+
+export const useAddUploadsQuery = (request: AddUploadRequest) => {
+  const queryClient = useQueryClient();
+  const errorNotifier = useErrorNotification();
+  const { notify } = useNotification();
+  return useMutation(() => addUploads(request), {
+    onSuccess: (data) => {
+      notify({
+        variant: AlertVariant.success,
+        title:
+          request.uploads.length > 1
+            ? `${request.uploads.length} rpms successfully uploaded to ${data.object_name}`
+            : `One rpm successfully uploaded to ${data.object_name}`,
+        description: 'This repository will be snapshotted shortly',
+        id: 'add-upload-success',
+      });
+
+      queryClient.invalidateQueries(CONTENT_LIST_KEY);
+      queryClient.invalidateQueries(ADMIN_TASK_LIST_KEY);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => {
+      errorNotifier(
+        'Error uploading rpms to this repository',
+        'An error occurred',
+        err,
+        'add-upload-error',
       );
     },
   });
@@ -246,14 +286,15 @@ export const useAddPopularRepositoryQuery = (
   });
 };
 
-export const useEditContentQuery = (queryClient: QueryClient, request: EditContentRequest) => {
+export const useEditContentQuery = (request: EditContentRequestItem) => {
+  const queryClient = useQueryClient();
   const errorNotifier = useErrorNotification();
   const { notify } = useNotification();
-  return useMutation(() => EditContentListItem(request[0]), {
+  return useMutation(() => EditContentListItem(request), {
     onSuccess: () => {
       notify({
         variant: AlertVariant.success,
-        title: `Successfully edited ${request.length} ${request.length > 1 ? 'items' : 'item'}`,
+        title: `Successfully edited repository ${request.name}`,
         id: 'edit-content-success',
       });
 
@@ -275,7 +316,7 @@ export const useEditContentQuery = (queryClient: QueryClient, request: EditConte
 
 export const useValidateContentList = () => {
   const errorNotifier = useErrorNotification();
-  return useMutation((request: CreateContentRequest) => validateContentListItems(request), {
+  return useMutation((request: ValidateContentRequestItem) => validateContentListItems(request), {
     onError: (err) => {
       errorNotifier(
         'Error validating form fields',

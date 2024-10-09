@@ -4,6 +4,7 @@ import { AdminTask } from '../AdminTasks/AdminTaskApi';
 
 export interface ContentItem {
   uuid: string;
+
   name: string;
   package_count: number;
   url: string;
@@ -22,6 +23,7 @@ export interface ContentItem {
   last_snapshot_uuid?: string;
   last_snapshot?: SnapshotItem;
   label?: string;
+  origin?: ContentOrigin;
   last_snapshot_task?: AdminTask;
   last_introspection_status: string;
 }
@@ -38,14 +40,19 @@ export interface PopularRepository {
 }
 
 export interface CreateContentRequestItem {
-  name: string;
-  url: string;
+  name?: string;
+  url?: string;
   distribution_versions?: Array<string>;
   distribution_arch?: string;
   gpg_key?: string;
   metadata_verification?: boolean;
   snapshot?: boolean;
   module_hotfixes?: boolean;
+  origin?: ContentOrigin;
+}
+
+export interface ValidateContentRequestItem extends CreateContentRequestItem {
+  uuid?: string;
 }
 
 export interface ErrorItem {
@@ -73,8 +80,6 @@ export interface EditContentRequestItem {
   snapshot: boolean;
   module_hotfixes: boolean;
 }
-
-export type EditContentRequest = Array<EditContentRequestItem>;
 
 export type ContentList = Array<ContentItem>;
 
@@ -146,7 +151,7 @@ export type ValidationResponse = {
   distribution_versions?: ValidateItem;
   distribution_arch?: ValidateItem;
   gpg_key?: ValidateItem;
-}[];
+};
 
 export interface PackageItem {
   arch: string;
@@ -234,6 +239,40 @@ export type IntrospectRepositoryRequestItem = {
   uuid: string;
   reset_count?: boolean;
 };
+
+export interface UploadResponse {
+  completed: string;
+  created: string;
+  last_updated: string;
+  size: number;
+  upload_uuid: string;
+}
+
+export interface UploadChunkRequest {
+  chunkRange: string;
+  created: string;
+  sha256: string;
+  file: Blob;
+  upload_uuid: string;
+}
+
+export interface AddUploadRequest {
+  uploads: { sha256: string; uuid: string }[];
+  repoUUID: string;
+}
+
+export interface AddUploadResponse {
+  uuid: string;
+  status: string;
+  created_at: string;
+  ended_at: string;
+  error: string;
+  org_id: string;
+  type: string;
+  object_type: string;
+  object_name: string;
+  object_uuid: string;
+}
 
 export const getPopularRepositories: (
   page: number,
@@ -348,13 +387,12 @@ export const getRepositoryParams: () => Promise<RepositoryParamsResponse> = asyn
 };
 
 export const validateContentListItems: (
-  request: CreateContentRequest,
+  request: ValidateContentRequestItem,
 ) => Promise<ValidationResponse> = async (request) => {
-  const { data } = await axios.post(
-    '/api/content-sources/v1.0/repository_parameters/validate/',
+  const { data } = await axios.post('/api/content-sources/v1.0/repository_parameters/validate/', [
     request,
-  );
-  return data;
+  ]);
+  return data[0];
 };
 
 export const getGpgKey: (url: string) => Promise<GpgKeyResponse> = async (url: string) => {
@@ -486,6 +524,39 @@ export const getSnapshotErrata: (
       severity: severity.join(','),
       sort_by: sortBy,
     })}`,
+  );
+  return data;
+};
+
+export const createUpload: (size: number) => Promise<UploadResponse> = async (size) => {
+  const { data } = await axios.post('/api/content-sources/v1.0/repositories/uploads/', { size });
+  return data;
+};
+
+export const uploadChunk: (chunkRequest: UploadChunkRequest) => Promise<UploadResponse> = async ({
+  chunkRange,
+  upload_uuid,
+  file,
+  sha256,
+}) => {
+  const formData = new FormData();
+  formData.set('file', file);
+  formData.set('sha256', sha256);
+  const { data } = await axios.post(
+    `/api/content-sources/v1.0/repositories/uploads/${upload_uuid}/upload_chunk/`,
+    formData,
+    { headers: { 'Content-Range': chunkRange } },
+  );
+  return data;
+};
+
+export const addUploads: (chunkRequest: AddUploadRequest) => Promise<AddUploadResponse> = async ({
+  uploads,
+  repoUUID,
+}) => {
+  const { data } = await axios.post(
+    `/api/content-sources/v1.0/repositories/${repoUUID}/add_uploads/`,
+    { uploads },
   );
   return data;
 };

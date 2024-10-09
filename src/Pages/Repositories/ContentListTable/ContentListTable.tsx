@@ -50,8 +50,9 @@ import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip
 import dayjs from 'dayjs';
 import ChangedArrows from './components/SnapshotListModal/components/ChangedArrows';
 import { Outlet, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
-import { ADD_ROUTE, DELETE_ROUTE, EDIT_ROUTE } from 'Routes/constants';
+import { ADD_ROUTE, DELETE_ROUTE, EDIT_ROUTE, UPLOAD_ROUTE } from 'Routes/constants';
 import useArchVersion from 'Hooks/useArchVersion';
+import UploadRepositoryLabel from 'components/UploadRepositoryLabel/UploadRepositoryLabel';
 
 const useStyles = createUseStyles({
   mainContainer: {
@@ -88,6 +89,9 @@ const useStyles = createUseStyles({
   disabledButton: {
     pointerEvents: 'auto',
     cursor: 'default',
+  },
+  uploadIcon: {
+    marginLeft: '8px',
   },
 });
 
@@ -303,9 +307,20 @@ const ContentListTable = () => {
               isDisabled: actionTakingPlace || rowData?.status === 'Pending',
               title: 'Edit',
               onClick: () => {
-                navigate(`${EDIT_ROUTE}?repoUUIDS=${rowData.uuid}`);
+                navigate(`${rowData.uuid}/${EDIT_ROUTE}`);
               },
             },
+            ...(rowData.origin === ContentOrigin.UPLOAD
+              ? [
+                  {
+                    isDisabled: actionTakingPlace || rowData?.status === 'Pending',
+                    title: 'Upload content',
+                    onClick: () => {
+                      navigate(`${rowData.uuid}/${UPLOAD_ROUTE}`);
+                    },
+                  },
+                ]
+              : []),
             ...(features?.snapshots?.accessible
               ? [
                   {
@@ -315,27 +330,32 @@ const ContentListTable = () => {
                       navigate(`${rowData.uuid}/snapshots`);
                     },
                   },
-                  {
-                    id: 'actions-column-snapshot',
-                    className:
-                      actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot
-                        ? classes.disabledButton
-                        : '',
-                    isDisabled:
-                      actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot,
-                    title: 'Trigger snapshot',
-                    onClick: () => {
-                      triggerIntrospectionAndSnapshot(rowData?.uuid);
-                    },
-                    tooltipProps: !rowData.snapshot
-                      ? {
-                          content: 'Snapshots disabled for this repository.',
-                          position: TooltipPosition.left,
-                          triggerRef: () =>
-                            document.getElementById('actions-column-snapshot') || document.body,
-                        }
-                      : undefined,
-                  },
+                  ...(rowData.origin !== ContentOrigin.UPLOAD
+                    ? [
+                        {
+                          id: 'actions-column-snapshot',
+                          className:
+                            actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot
+                              ? classes.disabledButton
+                              : '',
+                          isDisabled:
+                            actionTakingPlace || rowData?.status === 'Pending' || !rowData.snapshot,
+                          title: 'Trigger snapshot',
+                          onClick: () => {
+                            triggerIntrospectionAndSnapshot(rowData?.uuid);
+                          },
+                          tooltipProps: !rowData.snapshot
+                            ? {
+                                content: 'Snapshots disabled for this repository.',
+                                position: TooltipPosition.left,
+                                triggerRef: () =>
+                                  document.getElementById('actions-column-snapshot') ||
+                                  document.body,
+                              }
+                            : undefined,
+                        },
+                      ]
+                    : []),
                 ]
               : []),
             ...(!rowData?.snapshot
@@ -425,19 +445,22 @@ const ContentListTable = () => {
 
   return (
     <>
-      <Outlet
-        context={{
-          clearCheckedRepositories,
-          deletionContext: {
-            page,
-            perPage,
-            filterData,
-            contentOrigin,
-            sortString: sortString,
-            checkedRepositories,
-          },
-        }}
-      />
+      {/* This ensures that the modal doesn't temporarily flash on initial render */}
+      <Hide hide={isLoading}>
+        <Outlet
+          context={{
+            clearCheckedRepositories,
+            deletionContext: {
+              page,
+              perPage,
+              filterData,
+              contentOrigin,
+              sortString: sortString,
+              checkedRepositories,
+            },
+          }}
+        />
+      </Hide>
       <Grid
         data-ouia-component-id='content_list_page'
         className={countIsZero ? classes.mainContainer100Height : classes.mainContainer}
@@ -550,6 +573,7 @@ const ContentListTable = () => {
                         distribution_versions,
                         last_introspection_time,
                         status,
+                        origin,
                       } = rowData;
                       return (
                         <Tr key={uuid + status}>
@@ -565,7 +589,12 @@ const ContentListTable = () => {
                           </Hide>
                           <Td>
                             {name}
-                            <UrlWithExternalIcon href={url} />
+                            <Hide hide={origin !== ContentOrigin.UPLOAD}>
+                              <UploadRepositoryLabel />
+                            </Hide>
+                            <Hide hide={origin === ContentOrigin.UPLOAD}>
+                              <UrlWithExternalIcon href={url} />
+                            </Hide>
                             <Hide hide={!features?.snapshots?.accessible}>
                               <Flex>
                                 <FlexItem className={classes.snapshotInfoText}>
