@@ -1,4 +1,5 @@
 import {
+  AlertVariant,
   Bullseye,
   Button,
   Flex,
@@ -33,7 +34,7 @@ import {
 import EmptyTableState from 'components/EmptyTableState/EmptyTableState';
 import { useQueryClient } from 'react-query';
 import type { TemplateItem } from 'services/Templates/TemplateApi';
-import { FETCH_TEMPLATE_KEY } from 'services/Templates/TemplateQueries';
+import { FETCH_TEMPLATE_KEY, useFetchTemplate } from 'services/Templates/TemplateQueries';
 import Loader from 'components/Loader';
 import {
   DETAILS_ROUTE,
@@ -42,6 +43,8 @@ import {
   PATCH_SYSTEMS_ROUTE,
 } from 'Routes/constants';
 import ModalSystemsTable from './ModalSystemsTable';
+import ConditionalTooltip from 'components/ConditionalTooltip/ConditionalTooltip';
+import useNotification from 'Hooks/useNotification';
 
 const useStyles = createUseStyles({
   description: {
@@ -91,6 +94,9 @@ export default function AddSystemModal() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const selectedList = useMemo(() => new Set(selected), [selected]);
+  const { notify } = useNotification();
+  const [pollCount, setPollCount] = useState(0);
+  const [polling, setPolling] = useState(false);
 
   useEffect(() => {
     if (!selectedList.size) {
@@ -146,6 +152,52 @@ export default function AddSystemModal() {
       onClose();
     }
   }, [isError]);
+
+  const { data: template } = useFetchTemplate(uuid as string, true, polling);
+
+  const templatePending = useMemo(
+    () =>
+      template?.last_update_task?.status === 'running' ||
+      template?.last_update_task?.status === 'pending',
+    [template?.last_update_task],
+  );
+
+  useEffect(() => {
+    if (isError) {
+      setPolling(false);
+      setPollCount(0);
+      return;
+    }
+
+    if (polling && templatePending) {
+      setPollCount(pollCount + 1);
+    }
+    if (polling && !templatePending) {
+      setPollCount(0);
+    }
+    if (pollCount > 40) {
+      return setPolling(false);
+    }
+    return setPolling(templatePending);
+  }, [templatePending, isError]);
+
+  useEffect(() => {
+    if (
+      (template?.rhsm_environment_created === false &&
+        template?.last_update_task?.status === 'failed') ||
+      (template?.rhsm_environment_created === false &&
+        template?.last_update_task?.status === 'completed')
+    ) {
+      notify({
+        title: 'Environment not created for template',
+        description:
+          'An error occurred when creating the environment. Cannot assign this template to a system.',
+        variant: AlertVariant.danger,
+        id: 'rhsm-environment-error',
+        dismissable: true,
+      });
+    }
+  }, [template?.last_update_task]);
 
   const onSetPage = (_, newPage) => setPage(newPage);
 
@@ -225,18 +277,31 @@ export default function AddSystemModal() {
       onClose={onClose}
       footer={
         <>
-          <Button
-            isLoading={isAdding}
-            isDisabled={isAdding || !selected.length}
-            key='add_system'
-            variant='primary'
-            onClick={() => addSystems().then(onClose)}
-          >
-            Assign
-          </Button>
-          <Button key='close' variant='secondary' onClick={onClose}>
-            Close
-          </Button>
+          <Flex gap={{ default: 'gapMd' }}>
+            <ConditionalTooltip
+              content='Cannot assign this template to a system yet.'
+              show={!template?.rhsm_environment_created}
+              setDisabled
+            >
+              <Button
+                isLoading={isAdding}
+                isDisabled={
+                  isAdding ||
+                  !selected.length ||
+                  (!template?.rhsm_environment_created &&
+                    template?.last_update_task?.status !== 'completed')
+                }
+                key='add_system'
+                variant='primary'
+                onClick={() => addSystems().then(onClose)}
+              >
+                Assign
+              </Button>
+            </ConditionalTooltip>
+            <Button key='close' variant='secondary' onClick={onClose}>
+              Close
+            </Button>
+          </Flex>
         </>
       }
     >
