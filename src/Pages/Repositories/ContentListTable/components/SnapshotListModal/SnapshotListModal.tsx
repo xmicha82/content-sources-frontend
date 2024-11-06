@@ -3,7 +3,6 @@ import {
   Flex,
   FlexItem,
   Grid,
-  InputGroup,
   Modal,
   ModalVariant,
   Pagination,
@@ -20,7 +19,10 @@ import {
   ThProps,
   Tr,
 } from '@patternfly/react-table';
-import { global_BackgroundColor_100, global_Color_200 } from '@patternfly/react-tokens';
+import {
+  global_BackgroundColor_100,
+  global_Color_200
+} from '@patternfly/react-tokens';
 import { useEffect, useMemo, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 import { SkeletonTable } from '@patternfly/react-component-groups';
@@ -35,6 +37,7 @@ import RepoConfig from './components/RepoConfig';
 import { REPOSITORIES_ROUTE } from 'Routes/constants';
 import { SnapshotDetailTab } from '../SnapshotDetailsModal/SnapshotDetailsModal';
 import { formatDateDDMMMYYYY } from 'helpers';
+import LatestRepoConfig from './components/LatestRepoConfig';
 
 const useStyles = createUseStyles({
   description: {
@@ -169,21 +172,26 @@ export default function SnapshotListModal() {
     >
       <InnerScrollContainer>
         <Grid className={classes.mainContainer}>
-          <InputGroup className={classes.topContainer}>
             <Grid />
             <Hide hide={loadingOrZeroCount}>
-              <Pagination
-                id='top-pagination-id'
-                widgetId='topPaginationWidgetId'
-                itemCount={count}
-                perPage={perPage}
-                page={page}
-                onSetPage={onSetPage}
-                isCompact
-                onPerPageSelect={onPerPageSelect}
-              />
+              <Flex className={classes.topContainer}>
+                <FlexItem>
+                  <LatestRepoConfig repoUUID={uuid}/>
+                </FlexItem>
+                <FlexItem>
+                  <Pagination
+                      id='top-pagination-id'
+                      widgetId='topPaginationWidgetId'
+                      itemCount={count}
+                      perPage={perPage}
+                      page={page}
+                      onSetPage={onSetPage}
+                      isCompact
+                      onPerPageSelect={onPerPageSelect}
+                  />
+                </FlexItem>
+              </Flex>
             </Hide>
-          </InputGroup>
           <Hide hide={!fetchingOrLoading}>
             <Grid className={classes.mainContainer}>
               <SkeletonTable
@@ -260,7 +268,7 @@ export default function SnapshotListModal() {
                         </Button>
                       </Td>
                       <Td>
-                        <RepoConfig repoUUID={uuid} snapUUID={snap_uuid} />
+                        <RepoConfig repoUUID={uuid} snapUUID={snap_uuid} latest={false} />
                       </Td>
                     </Tr>
                   ),

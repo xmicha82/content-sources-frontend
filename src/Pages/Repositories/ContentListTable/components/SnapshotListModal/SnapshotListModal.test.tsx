@@ -14,6 +14,7 @@ jest.mock('services/Content/ContentQueries', () => ({
   useFetchContent: jest.fn(),
   useGetSnapshotList: jest.fn(),
   useGetRepoConfigFileQuery: () => ({ mutateAsync: jest.fn() }),
+  useGetLatestRepoConfigFileQuery: () => ({ mutateAsync: jest.fn() })
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -46,6 +47,7 @@ it('Render 1 item', () => {
   );
 
   expect(queryByText(defaultContentItemWithSnapshot.name)).toBeInTheDocument();
+  expect(queryByText('Latest Snapshot Config:')).toBeInTheDocument();
 
   expect(
     queryByText((defaultSnapshotItem.content_counts['rpm.package'] as number)?.toString()),
@@ -80,6 +82,7 @@ it('Render 20 items', () => {
   );
 
   expect(queryByText(defaultContentItemWithSnapshot.name)).toBeInTheDocument();
+  expect(queryByText('Latest Snapshot Config:')).toBeInTheDocument();
 
   expect(
     queryByText((defaultSnapshotItem.content_counts['rpm.package'] as number)?.toString()),
