@@ -5,6 +5,7 @@ import {
   type ErrataResponse,
   type PackageItem,
   SnapshotListResponse,
+  SnapshotItem,
 } from '../Content/ContentApi';
 import { objectToUrlParams } from 'helpers';
 import { AdminTask } from 'services/AdminTasks/AdminTaskApi';
@@ -29,6 +30,7 @@ export interface TemplateItem {
   org_id: string;
   description: string;
   repository_uuids: string[];
+  snapshots: SnapshotItem[];
   arch: string;
   version: string;
   date: string;
@@ -60,6 +62,7 @@ export type TemplateFilterData = {
   version: string;
   search: string;
   repository_uuids: string;
+  snapshot_uuids: string;
 };
 
 export const getTemplates: (
@@ -71,7 +74,7 @@ export const getTemplates: (
   page,
   limit,
   sortBy,
-  { search, arch, version, repository_uuids },
+  { search, arch, version, repository_uuids, snapshot_uuids },
 ) => {
   const { data } = await axios.get(
     `/api/content-sources/v1/templates/?${objectToUrlParams({
@@ -82,6 +85,7 @@ export const getTemplates: (
       version,
       sort_by: sortBy,
       repository_uuids: repository_uuids,
+      snapshot_uuids: snapshot_uuids,
     })}`,
   );
   return data;
@@ -153,6 +157,19 @@ export const getTemplateSnapshots: (
       limit: limit?.toString(),
       repository_search: search,
       sort_by: sortBy,
+    })}`,
+  );
+  return data;
+};
+
+export const getTemplatesForSnapshots: (
+  snapshotUuids: string[],
+) => Promise<TemplateCollectionResponse> = async (snapshotUuids: string[]) => {
+  const { data } = await axios.get<TemplateCollectionResponse>(
+    `/api/content-sources/v1/templates/?${objectToUrlParams({
+      offset: '0',
+      limit: '-1',
+      snapshot_uuids: snapshotUuids.join(','),
     })}`,
   );
   return data;

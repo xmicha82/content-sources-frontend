@@ -353,6 +353,17 @@ export const deleteContentListItems: (uuids: string[]) => Promise<void> = async 
   return data;
 };
 
+export const deleteSnapshots: (repoUuid: string, uuids: string[]) => Promise<void> = async (
+  repoUuid: string,
+  uuids: string[],
+) => {
+  const { data } = await axios.post(
+    `/api/content-sources/v1/repositories/${repoUuid}/snapshots/bulk_delete/`,
+    { uuids },
+  );
+  return data;
+};
+
 export const getSnapshotsByDate = async (
   uuids: string[],
   date: string,
@@ -477,12 +488,8 @@ export const getRepoConfigFile: (snapshot_uuid: string) => Promise<string> = asy
   return data;
 };
 
-export const getLatestRepoConfigFile: (repoUUID: string) => Promise<string> = async (
-    repoUUID,
-) => {
-  const { data } = await axios.get(
-      `/api/content-sources/v1/repositories/${repoUUID}/config.repo`,
-  );
+export const getLatestRepoConfigFile: (repoUUID: string) => Promise<string> = async (repoUUID) => {
+  const { data } = await axios.get(`/api/content-sources/v1/repositories/${repoUUID}/config.repo`);
   return data;
 };
 

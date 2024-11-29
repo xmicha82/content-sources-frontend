@@ -14,11 +14,12 @@ jest.mock('services/Content/ContentQueries', () => ({
   useFetchContent: jest.fn(),
   useGetSnapshotList: jest.fn(),
   useGetRepoConfigFileQuery: () => ({ mutateAsync: jest.fn() }),
-  useGetLatestRepoConfigFileQuery: () => ({ mutateAsync: jest.fn() })
+  useGetLatestRepoConfigFileQuery: () => ({ mutateAsync: jest.fn() }),
 }));
 
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
+  Outlet: () => <></>,
   useParams: () => ({
     repoUUID: 'some-uuid',
   }),
