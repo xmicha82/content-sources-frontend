@@ -12,12 +12,12 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI
     ? [
-        ['list'],
+        ['html', { outputFolder: 'playwright-report' }],
         [
           'playwright-ctrf-json-reporter',
-          { useDetails: true, outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
+          { outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
         ],
-        ['html', { outputFolder: 'playwright-report' }],
+        ['./ci-reporter'],
       ]
     : 'list',
   timeout: process.env.CI ? 60000 : 30000,
@@ -34,9 +34,10 @@ export default defineConfig({
         }
       : {}),
     baseURL: process.env.BASE_URL,
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     ignoreHTTPSErrors: true,
-    testIdAttribute: 'data-ouia-component-id'
+    testIdAttribute: 'data-ouia-component-id',
+    screenshot: 'only-on-failure',
   },
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
