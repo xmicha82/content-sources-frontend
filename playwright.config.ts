@@ -17,7 +17,7 @@ export default defineConfig({
           'playwright-ctrf-json-reporter',
           { outputDir: 'playwright-ctrf', outputFile: 'playwright-ctrf.json' },
         ],
-        ['./ci-reporter'],
+        ['@currents/playwright'],
       ]
     : 'list',
   globalTimeout: 29.5 * 60 * 1000, // 29.5m, Set because of codebuild, we want PW to timeout before CB to get the results.
@@ -37,10 +37,11 @@ export default defineConfig({
         }
       : {}),
     baseURL: process.env.BASE_URL,
-    trace: 'retain-on-failure',
     ignoreHTTPSErrors: true,
     testIdAttribute: 'data-ouia-component-id',
-    screenshot: 'only-on-failure',
+    trace: 'on',
+    screenshot: 'on',
+    video: 'on',
   },
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
