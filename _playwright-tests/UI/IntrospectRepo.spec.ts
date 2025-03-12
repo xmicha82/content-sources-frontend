@@ -1,7 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { navigateToRepositories } from './helpers/navHelpers';
-import { closePopupsIfExist, getRowByNameOrUrl, getRowCellByHeader } from './helpers/helpers';
 import { deleteAllRepos } from './helpers/deleteRepositories';
+import {
+  closePopupsIfExist,
+  getRowByNameOrUrl,
+  getRowCellByHeader,
+  waitForTaskPickup,
+} from './helpers/helpers';
 
 test.describe('Introspect Repositories', () => {
   const repoName = 'introspection-test';
@@ -46,8 +51,9 @@ test.describe('Introspect Repositories', () => {
     });
 
     await test.step('Wait for status to be "Valid"', async () => {
+      await waitForTaskPickup(page, repoUrl, 'introspect');
       const row = await getRowByNameOrUrl(page, repoName);
-      await expect(row.getByText('Valid')).toBeVisible();
+      await expect(row.getByText('Valid')).toBeVisible({ timeout: 60_000 });
     });
   });
 
@@ -64,8 +70,12 @@ test.describe('Introspect Repositories', () => {
       await Promise.all([
         expect(page.getByText(repoArch)).toHaveCount(8),
         expect((await getRowCellByHeader(page, row, 'Name')).getByText(testPackage)).toBeVisible(),
-        expect((await getRowCellByHeader(page, row, 'Version')).getByText(repoVersion)).toBeVisible(),
-        expect((await getRowCellByHeader(page, row, 'Release')).getByText(repoRelease)).toBeVisible(),
+        expect(
+          (await getRowCellByHeader(page, row, 'Version')).getByText(repoVersion),
+        ).toBeVisible(),
+        expect(
+          (await getRowCellByHeader(page, row, 'Release')).getByText(repoRelease),
+        ).toBeVisible(),
         expect((await getRowCellByHeader(page, row, 'Arch')).getByText(repoArch)).toBeVisible(),
       ]);
     });

@@ -14,7 +14,11 @@ export const closePopupsIfExist = async (page: Page) => {
 
   for (const locator of locatorsToCheck) {
     await page.addLocatorHandler(locator, async () => {
-      await locator.first().click(); // There can be multiple toast pop-ups
+      try {
+        await locator.first().click(); // There can be multiple toast pop-ups
+      } catch {
+        return;
+      }
     });
   }
 };
@@ -39,7 +43,7 @@ export const getRowByNameOrUrl = async (page: Page, filterValue: string) => {
 };
 
 export const getRowCellByHeader = async (page: Page, row: Locator, name: string) => {
-  await expect(page.getByRole('columnheader', { name: name })).toBeVisible()
+  await expect(page.getByRole('columnheader', { name: name })).toBeVisible();
   const table = row.locator('xpath=ancestor::*[@role="grid" or @role="table"][1]');
   const headers = table.getByRole('columnheader');
   const headerCount = await headers.count();
@@ -78,4 +82,60 @@ export const validateSnapshotTimestamp = async (timestamp: string, howRecent: nu
     return false;
   }
   return true;
+};
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const waitForTaskPickup = async (page: Page, repoUrl: string, type: string) => {
+  const response = await page.request.get(`/api/content-sources/v1/repositories/?url=${repoUrl}`);
+  expect(response.status()).toBe(200);
+  const body = await response.json();
+  expect(Array.isArray(body.data)).toBeTruthy();
+  const uuidList = body.data.map((data: { uuid: string }) => data.uuid) as string[];
+  expect(uuidList.length).toEqual(1);
+  const repoUuid = uuidList[0];
+
+  await expect
+    .poll(
+      async () => {
+        const response = await page.request.get(
+          `/api/content-sources/v1/tasks/?repository_uuid=${repoUuid}&type=${type}&status=pending&limit=1`,
+        );
+        const body = await response.json();
+        const data = Array.from(body.data);
+        return data.length == 0;
+      },
+      {
+        message: 'make sure the task gets picked up',
+        intervals: [1_000, 2_000, 5_000, 10_000],
+        timeout: 300_000, // 5 min
+      },
+    )
+    .toBeTruthy();
+};
+
+export const retry = async (
+  page: Page,
+  callback: (page: Page) => Promise<void>,
+  tries = 3,
+  delay?: number,
+) => {
+  let rc = tries;
+  while (rc >= 0) {
+    if (delay) {
+      sleep(delay);
+    }
+
+    rc -= 1;
+    if (rc === 0) {
+      return await callback(page);
+    } else {
+      try {
+        await callback(page);
+      } catch {
+        continue;
+      }
+      break;
+    }
+  }
 };
