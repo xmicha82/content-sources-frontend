@@ -2,7 +2,7 @@ import { type Page } from '@playwright/test';
 import { retry } from './helpers';
 
 const navigateToRepositoriesFunc = async (page: Page) => {
-  await page.goto('/insights/content/repositories', { timeout: 10001 });
+  await page.goto('/insights/content/repositories', { timeout: 20000 });
 
   const zeroState = page.getByText('Start using Content management now');
 
@@ -31,7 +31,7 @@ export const navigateToRepositories = async (page: Page) => {
     await page.route('https://smetrics.redhat.com/**', (route) => route.abort());
 
     const repositoriesNavLink = page
-      .getByRole('navigation')
+      .getByRole('navigation', { name: 'Breadcrumb' })
       .getByRole('link', { name: 'Repositories' });
     await repositoriesNavLink.waitFor({ state: 'visible', timeout: 1500 });
     await repositoriesNavLink.click();
